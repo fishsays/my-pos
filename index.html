@@ -122,7 +122,7 @@
             return <Component ref={listRef} className={className}>{items.map((item, idx) => renderItem(item, idx))}</Component>;
         };
 
-        // --- 核心邏輯組件 (移至前方以避免 ReferenceError) ---
+        // --- 核心邏輯組件 ---
 
         const CheckoutModal = ({ cart, subtotal, staffs, discounts = [], payments, onClose, onSuccess, type = "SALE" }) => {
             const [selectedStaff, setSelectedStaff] = useState('');
@@ -323,7 +323,8 @@
             const filtered = useMemo(() => {
                 return products.filter(p => {
                     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode || '').includes(search);
-                    const matchTags = selectedTags.length === 0 || selectedTags.some(t => p.tags?.includes(t));
+                    // 修正為 AND 邏輯：所有選中的標籤都必須符合
+                    const matchTags = selectedTags.length === 0 || selectedTags.every(t => p.tags?.includes(t));
                     return matchSearch && matchTags;
                 });
             }, [products, search, selectedTags]);
@@ -415,7 +416,8 @@
                                     </div>
                                 </div>
                                 <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
-                                    {cart.map((item) => (
+                                    {cart.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-slate-300 space-y-4 p-8 text-center opacity-40 font-black"><i data-lucide="shopping-cart" className="w-16 h-16"></i><p>尚未選擇商品</p></div> : 
+                                    cart.map((item) => (
                                         <div key={item.cartId} className="flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 animate-in slide-in-from-right duration-300 font-sans font-bold">
                                             <div className="flex-1 font-sans font-bold"><p className="font-black text-slate-700 leading-tight">{item.name}</p><p className="text-[10px] text-slate-400 uppercase">{item.label}</p><p className="text-indigo-600 font-black mt-1">${item.price}</p></div>
                                             <div className="flex items-center bg-white rounded-xl border p-1 shadow-sm font-sans font-bold">
@@ -474,7 +476,7 @@
             return (
                 <div className="h-full flex flex-col lg:flex-row overflow-hidden font-sans font-bold">
                     <div className="flex-1 p-4 lg:p-8 space-y-6 overflow-hidden flex flex-col font-sans font-bold">
-                        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-sans font-bold"><h2 className="text-2xl font-black text-slate-800 tracking-tight font-sans font-bold">庫存與批次管理</h2><select className="p-2 rounded-xl border bg-white outline-none font-black font-sans font-bold" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}><option value="全部">全部顯示</option>{tags.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}</select></header>
+                        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-sans font-bold"><h2 className="text-2xl font-black text-slate-800 tracking-tight font-sans font-bold">庫存與批次入庫管理</h2><select className="p-2 rounded-xl border bg-white outline-none font-black font-sans font-bold" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}><option value="全部">全部顯示</option>{tags.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}</select></header>
                         <div className="flex-1 overflow-y-auto pb-20 scrollbar-hide font-sans" ref={scrollRef} onScroll={() => setIsSidebarExpanded(false)}>
                             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                                 {filteredProducts.map(p => (
@@ -544,7 +546,6 @@
             );
         };
 
-        // --- 報表視圖 (支援修改與刪除) ---
         const HistoryView = ({ staffs, payments, discounts }) => {
             const [orders, setOrders] = useState([]);
             const [search, setSearch] = useState('');
@@ -615,7 +616,7 @@
                                     <div><p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">{o.orderNo}</p><h4 className="font-black text-slate-700 leading-none text-lg">{o.timestamp?.toDate().toISOString().split('T')[0]}</h4></div>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all"><button onClick={() => setEditOrder(JSON.parse(JSON.stringify(o)))} className="p-2 text-indigo-500 hover:bg-slate-100 rounded-xl"><IconEdit /></button><button onClick={() => setConfirmDelete(o)} className="p-2 text-rose-500 hover:bg-slate-100 rounded-xl"><IconTrash /></button></div>
                                 </div>
-                                <div className="space-y-1 font-sans font-bold">{o.items.map((it, i) => (<div key={i} className="flex justify-between text-xs font-bold"><span>{it.name} <span className="opacity-40 uppercase text-[8px]">({it.label})</span> x{it.qty}</span>{o.type === 'SALE' && <span className="text-slate-800 font-black">${it.price * it.qty}</span>}</div>))}</div>
+                                <div className="space-y-1 font-sans font-bold">{o.items.map((it, i) => (<div key={i} className="flex justify-between text-xs font-bold font-sans"><span>{it.name} <span className="opacity-40 uppercase text-[8px]">({it.label})</span> x{it.qty}</span>{o.type === 'SALE' && <span className="text-slate-800 font-black">${it.price * it.qty}</span>}</div>))}</div>
                                 <div className="bg-slate-50 p-4 rounded-2xl flex justify-between items-end border border-slate-100 shadow-inner font-sans font-bold"><div className="space-y-1 font-black text-[9px] uppercase text-slate-400 font-sans"><span>經手: {o.staff}</span>{o.notes && <p className="normal-case italic opacity-50 truncate max-w-[150px]">註: {o.notes}</p>}</div>{o.type === 'SALE' ? <span className="text-2xl text-indigo-600 font-black tracking-tighter leading-none">${o.finalPrice}</span> : <span className="text-xs text-emerald-600 font-black uppercase tracking-widest">已完成入庫</span>}</div>
                             </div>
                         ))}
