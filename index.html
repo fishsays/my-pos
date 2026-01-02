@@ -64,6 +64,13 @@
         const auth = firebase.auth();
         const getColl = (name) => db.collection('artifacts').doc(appId).collection('public').doc('data').collection(name);
 
+        // --- Helper: 本地時間格式化 (解決 ReferenceError 的關鍵) ---
+        const toLocalYMD = (date) => {
+            const offset = date.getTimezoneOffset() * 60000;
+            const localDate = new Date(date.getTime() - offset);
+            return localDate.toISOString().split('T')[0];
+        };
+
         // --- 1. 內建圖示庫 (Icon System) ---
         const Icon = ({ path, className = "w-6 h-6" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -94,7 +101,8 @@
             CreditCard: () => <Icon path={<><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></>} />,
             Tag: () => <Icon path={<><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></>} />,
             Percent: () => <Icon path={<><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></>} />,
-            FileXls: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></>} />
+            FileXls: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></>} />,
+            FileText: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></>} />
         };
 
         // --- 2. 基礎 UI 組件 ---
@@ -165,15 +173,16 @@
             const [selectedPayment, setSelectedPayment] = useState('');
             const [selectedDate, setSelectedDate] = useState(toLocalYMD(new Date())); 
             const [notes, setNotes] = useState('');
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const isSale = type === "SALE";
-
+            
             // 發票
             const [invoiceType, setInvoiceType] = useState('personal');
             const [carrierType, setCarrierType] = useState('print');
             const [taxId, setTaxId] = useState('');
             const [loveCode, setLoveCode] = useState('');
             const [carrierNum, setCarrierNum] = useState('');
+
+            const [isSubmitting, setIsSubmitting] = useState(false);
+            const isSale = type === "SALE";
 
             const toggleDiscount = (d) => {
                 if (selectedDiscounts.find(item => item.id === d.id)) setSelectedDiscounts(selectedDiscounts.filter(item => item.id !== d.id));
@@ -400,7 +409,7 @@
                             {activeTab === 'products' ? (
                                 <>
                                     <div className="flex overflow-x-auto space-x-2 pb-3 scrollbar-hide min-h-[40px] items-center">
-                                        <button onClick={() => setSelectedTags([])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.length === 0 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>全部</button>
+                                        <button onClick={() => setSelectedTags([])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.length === 0 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>全部清除</button>
                                         {tags.map(t => (<button key={t.id} onClick={() => setSelectedTags(prev => prev.includes(t.name) ? prev.filter(x => x !== t.name) : [...prev, t.name])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.includes(t.name) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>{t.name}</button>))}
                                     </div>
                                     <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -476,7 +485,7 @@
             );
         };
 
-        // --- 庫存與進貨 (一致化風格：白色按鈕、統一高度) ---
+        // --- 庫存與進貨 ---
         const InventoryView = ({ products, inventory, tags, staffs, payments }) => {
             const [selectedTag, setSelectedTag] = useState('全部');
             const [adjusting, setAdjusting] = useState(null);
@@ -726,7 +735,7 @@
                 const [val, setVal] = useState(''); const [num, setNum] = useState(0); const [type, setType] = useState('amount'); const isDiscount = coll === 'settings_discounts';
                 const add = async () => { if(!val) return; await getColl(coll).add({ name: val, value: isDiscount ? num : null, type: isDiscount ? type : null, order: data.length }); setVal(''); setNum(0); };
                 const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.CreditCard : icon === 'percent' ? Icons.Percent : Icons.Tag;
-
+                
                 return (
                     <div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 font-sans font-bold h-full flex flex-col font-sans font-bold">
                         <div className="flex items-center gap-2 mb-2 text-indigo-600 font-black uppercase text-xs tracking-widest font-sans font-bold font-sans font-bold"><IconComp /><h3>{title}</h3></div>
