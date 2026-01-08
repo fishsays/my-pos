@@ -65,7 +65,9 @@
         const auth = firebase.auth();
         const getColl = (name) => db.collection('artifacts').doc(appId).collection('public').doc('data').collection(name);
 
-        // --- Helper: 安全日期讀取 (修復消失單號的關鍵) ---
+        // --- Helper Functions (定義在最上方，確保所有組件都能存取) ---
+        
+        // 1. 安全日期讀取：處理 Firebase Timestamp 與 一般 Date 物件的差異
         const getSafeDate = (t) => {
             if (!t) return new Date();
             if (typeof t.toDate === 'function') return t.toDate(); // Firebase Timestamp
@@ -73,6 +75,7 @@
             return new Date(t); // 一般 Date 物件或字串
         };
 
+        // 2. 本地日期格式化：解決時區導致日期跳回昨天的問題
         const toLocalYMD = (dateInput) => {
             const date = new Date(dateInput);
             const offset = date.getTimezoneOffset() * 60000;
@@ -624,9 +627,9 @@
             useEffect(() => { fetchData(); }, []);
 
             const filtered = useMemo(() => orders.filter(o => {
-                const d = o.timestamp?.toDate ? toLocalYMD(o.timestamp.toDate()) : '';
+                const d = getSafeDate(o.timestamp).toISOString().split('T')[0];
                 return (d >= startDate && d <= endDate) && (!search || o.searchText?.includes(search.toLowerCase()));
-            }).sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0)), [orders, search, startDate, endDate]);
+            }).sort((a, b) => getSafeDate(b.timestamp) - getSafeDate(a.timestamp)), [orders, search, startDate, endDate]);
 
             const calcEditFinal = (o) => {
                 if (o.type !== 'SALE') return 0;
@@ -640,11 +643,28 @@
 
             const handleSaveEdit = async () => {
                 const { id, ...data } = editOrder;
+                
+                // 修復時間戳記格式
+                if (data.timestamp && !data.timestamp.toDate && data.timestamp.seconds) {
+                    data.timestamp = new firebase.firestore.Timestamp(data.timestamp.seconds, data.timestamp.nanoseconds);
+                } else if (typeof data.timestamp === 'string') {
+                    data.timestamp = firebase.firestore.Timestamp.fromDate(new Date(data.timestamp));
+                }
+
+                // 更新搜尋關鍵字
+                let searchBase = `${data.orderNo} ${data.staff} ${data.notes || ''} ${data.items.map(i => i.name).join(' ')}`;
+                
                 if (data.type === 'SALE') {
-                    data.subtotal = editOrder.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
+                    data.subtotal = data.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
                     data.finalPrice = calcEditFinal(editOrder);
                     data.discountName = discounts.filter(d => (editOrder.discountIds || []).includes(d.id)).map(d => d.name).join(', ') || '無';
+                    searchBase += ` ${data.payment} 銷售`;
+                    if (data.invoice) searchBase += ` ${data.invoice.carrierNum || ''} ${data.invoice.taxId || ''}`;
+                } else {
+                     searchBase += ` 進貨`;
                 }
+                data.searchText = searchBase.toLowerCase();
+
                 await getColl('transactions').doc(id).update(data);
                 setEditOrder(null); fetchData();
             };
@@ -662,7 +682,7 @@
                         data.push({ 
                             '發票類型': o.invoice?.type || '-',
                             '載具/統編': o.invoice?.type === 'company' ? o.invoice.taxId : (o.invoice?.carrierNum || '-'),
-                            '單號': o.orderNo, '類型': o.type, '日期': o.timestamp?.toDate ? toLocalYMD(o.timestamp.toDate()) : '', '品項': `${item.name} (${item.label})`, '數量': item.qty, '金額/單價': isPurchase ? "-" : item.price, '實收總額': isPurchase ? "-" : o.finalPrice, '經手人': o.staff });
+                            '單號': o.orderNo, '類型': o.type, '日期': getSafeDate(o.timestamp).toISOString().split('T')[0], '品項': `${item.name} (${item.label})`, '數量': item.qty, '金額/單價': isPurchase ? "-" : item.price, '實收總額': isPurchase ? "-" : o.finalPrice, '經手人': o.staff });
                     });
                 });
                 const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "報表"); XLSX.writeFile(wb, `營運紀錄_${startDate}.xlsx`);
@@ -677,7 +697,7 @@
                             <div key={o.id} className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 relative overflow-hidden group hover:border-indigo-100 transition-all font-sans font-bold animate-in fade-in duration-500">
                                 <div className={`absolute top-0 right-0 px-4 py-1 text-[9px] font-black uppercase text-white shadow-md ${o.type === 'PURCHASE' ? 'bg-emerald-500' : 'bg-indigo-500'} font-sans font-bold font-black`}>{o.type}</div>
                                 <div className="flex justify-between items-start border-b border-slate-50 pb-3 font-bold">
-                                    <div><p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">{o.orderNo}</p><h4 className="font-black text-slate-700 leading-none text-lg">{o.timestamp?.toDate ? toLocalYMD(o.timestamp.toDate()) : ''}</h4></div>
+                                    <div><p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">{o.orderNo}</p><h4 className="font-black text-slate-700 leading-none text-lg">{getSafeDate(o.timestamp).toISOString().split('T')[0]}</h4></div>
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all"><button onClick={() => setEditOrder(JSON.parse(JSON.stringify(o)))} className="p-2 text-indigo-500 hover:bg-slate-100 rounded-xl"><Icons.Edit /></button><button onClick={() => setConfirmDelete(o)} className="p-2 text-rose-500 hover:bg-slate-100 rounded-xl"><Icons.Trash /></button></div>
                                 </div>
                                 <div className="space-y-1 font-sans font-bold">{o.items.map((it, i) => (<div key={i} className="flex justify-between text-xs font-bold font-sans"><span>{it.name} <span className="opacity-40 uppercase text-[8px]">({it.label})</span> x{it.qty}</span>{o.type === 'SALE' && <span className="text-slate-800 font-black">${it.price * it.qty}</span>}</div>))}</div>
@@ -688,7 +708,7 @@
                     {editOrder && (
                         <Modal title="編輯紀錄數據" onClose={() => setEditOrder(null)}>
                             <div className="space-y-6 font-bold text-slate-700 font-sans">
-                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.timestamp?.seconds ? toLocalYMD(new Date(editOrder.timestamp.seconds * 1000)) : ''} onChange={e => {
+                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={getSafeDate(editOrder.timestamp).toISOString().split('T')[0]} onChange={e => {
                                         const d = new Date(e.target.value); d.setHours(12); setEditOrder({...editOrder, timestamp: firebase.firestore.Timestamp.fromDate(d)});
                                 }} /></div>
                                 <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">經手人員</label><select className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.staff} onChange={e => setEditOrder({...editOrder, staff: e.target.value})}>{staffs.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
@@ -761,7 +781,7 @@
                             )} />
                         </div>
                         <div className="flex flex-col gap-2 pt-2 border-t border-slate-50 font-sans font-bold mt-auto font-sans font-bold">
-                            <div className="flex gap-2 font-sans font-bold"><input className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner font-sans font-bold" placeholder="名稱..." value={val} onChange={e => setVal(e.target.value)} />{isDiscount && (<select className="p-3 rounded-xl border bg-slate-50 text-xs font-bold font-sans font-bold" value={type} onChange={e => setType(e.target.value)}><option value="amount">金額</option><option value="percent">%</option></select>)}</div>
+                            <div className="flex gap-2 font-sans font-bold"><input className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner font-sans font-bold" placeholder="名稱..." value={val} onChange={e => setVal(e.target.value)} />{isDiscount && (<div className="relative"><select className="appearance-none p-3 pr-8 rounded-xl border bg-slate-50 text-xs font-bold font-sans font-bold h-full" value={type} onChange={e => setType(e.target.value)}><option value="amount">金額</option><option value="percent">%</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500"><svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg></div></div>)}</div>
                             <div className="flex gap-2 font-sans font-bold"><input type="number" inputmode="numeric" className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner" value={num} onChange={e => setNum(parseInt(e.target.value) || 0)} /><button onClick={add} className="bg-indigo-600 text-white px-4 rounded-xl shadow-md font-sans active:scale-90 transition-transform font-sans font-bold"><Icons.Plus /></button></div>
                         </div>
                     </div>
