@@ -373,6 +373,7 @@
             const filtered = useMemo(() => {
                 return products.filter(p => {
                     const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode || '').includes(search);
+                    // 修正為 AND 邏輯：所有選中的標籤都必須符合
                     const matchTags = selectedTags.length === 0 || selectedTags.every(t => p.tags?.includes(t));
                     return matchSearch && matchTags;
                 });
@@ -642,14 +643,34 @@
             const handleSaveEdit = async () => {
                 const { id, ...data } = editOrder;
                 
-                // 修復時間戳記格式
+                // 1. 還原舊庫存 (防止資料流失的關鍵)
+                const oldDoc = await getColl('transactions').doc(id).get();
+                if(oldDoc.exists) {
+                    const oldData = oldDoc.data();
+                    const batch = db.batch();
+                    oldData.items.forEach(item => {
+                        const invRef = getColl('inventory').doc(item.id);
+                        const change = oldData.type === 'SALE' ? item.qty : -item.qty; // 逆向操作
+                        batch.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
+                    });
+                    await batch.commit();
+                }
+
+                // 2. 套用新庫存
+                const batchNew = db.batch();
+                data.items.forEach(item => {
+                    const invRef = getColl('inventory').doc(item.id);
+                    const change = data.type === 'SALE' ? -item.qty : item.qty; // 正向操作
+                    batchNew.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
+                });
+                
+                // 3. 更新單據資料
                 if (data.timestamp && !data.timestamp.toDate && data.timestamp.seconds) {
                     data.timestamp = new firebase.firestore.Timestamp(data.timestamp.seconds, data.timestamp.nanoseconds);
                 } else if (typeof data.timestamp === 'string') {
                     data.timestamp = firebase.firestore.Timestamp.fromDate(new Date(data.timestamp));
                 }
 
-                // 更新搜尋關鍵字
                 let searchBase = `${data.orderNo} ${data.staff} ${data.notes || ''} ${data.items.map(i => i.name).join(' ')}`;
                 
                 if (data.type === 'SALE') {
@@ -663,12 +684,23 @@
                 }
                 data.searchText = searchBase.toLowerCase();
 
-                await getColl('transactions').doc(id).update(data);
+                batchNew.update(getColl('transactions').doc(id), data);
+                await batchNew.commit();
+                
                 setEditOrder(null); fetchData();
             };
 
             const handleDelete = async () => {
-                await getColl('transactions').doc(confirmDelete.id).delete();
+                const batch = db.batch();
+                // 還原庫存
+                confirmDelete.items.forEach(item => {
+                    const invRef = getColl('inventory').doc(item.id);
+                    const change = confirmDelete.type === 'SALE' ? item.qty : -item.qty;
+                    batch.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
+                });
+                // 刪除單據
+                batch.delete(getColl('transactions').doc(confirmDelete.id));
+                await batch.commit();
                 setConfirmDelete(null); fetchData();
             };
 
