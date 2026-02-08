@@ -270,7 +270,8 @@
                                 {invoiceType === 'personal' && (
                                     <div className="space-y-2">
                                         <select className="w-full p-3 rounded-lg border outline-none text-sm font-bold bg-white" value={carrierType} onChange={e => setCarrierType(e.target.value)}><option value="print">列印紙本證明聯</option><option value="mobile">手機條碼載具</option><option value="cert">自然人憑證載具</option><option value="ezpay">ezPay 會員載具</option></select>
-                                        {carrierType === 'mobile' && <input type="text" placeholder="輸入手機條碼 (例如: /AB1234)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value.toUpperCase())} />}
+                                        {/* 修正手機條碼輸入：強制 URL 模式與關閉修正以支援掃描器 */}
+                                        {carrierType === 'mobile' && <input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" placeholder="輸入手機條碼 (例如: /AB1234)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value.toUpperCase())} />}
                                         {carrierType === 'cert' && <input type="text" placeholder="輸入憑證號碼 (16碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
                                         {carrierType === 'ezpay' && <input type="email" placeholder="輸入會員 Email" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
                                     </div>
@@ -760,14 +761,29 @@
 
             const exportToXlsx = () => {
                 const data = [];
+                const getInvoiceTypeStr = (inv) => {
+                    if (!inv) return '-';
+                    if (inv.type === 'company') return '公司';
+                    if (inv.type === 'personal' && inv.carrierType === 'print') return '紙本';
+                    return '電子'; // Covers mobile, cert, ezpay, donation
+                };
+
                 filtered.forEach(o => {
                     const isPurchase = o.type === "PURCHASE";
                     o.items.forEach(item => {
-                        // 新增狀態欄位 (發票/藍新) 已被排除，維持原樣
+                        // 調整順序，將發票欄位移至最後，並轉換發票類型文字
                         data.push({ 
-                            '發票類型': o.invoice?.type || '-',
-                            '載具/統編': o.invoice?.type === 'company' ? o.invoice.taxId : (o.invoice?.carrierNum || '-'),
-                            '單號': o.orderNo, '類型': o.type, '日期': getSafeDate(o.timestamp).toISOString().split('T')[0], '品項': `${item.name} (${item.label})`, '數量': item.qty, '金額/單價': isPurchase ? "-" : item.price, '實收總額': isPurchase ? "-" : o.finalPrice, '經手人': o.staff });
+                            '單號': o.orderNo, 
+                            '類型': o.type, 
+                            '日期': getSafeDate(o.timestamp).toISOString().split('T')[0], 
+                            '品項': `${item.name} (${item.label})`, 
+                            '數量': item.qty, 
+                            '金額/單價': isPurchase ? "-" : item.price, 
+                            '實收總額': isPurchase ? "-" : o.finalPrice, 
+                            '經手人': o.staff,
+                            '發票種類': getInvoiceTypeStr(o.invoice),
+                            '載具/統編': o.invoice?.type === 'company' ? o.invoice.taxId : (o.invoice?.carrierNum || '-')
+                        });
                     });
                 });
                 const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "報表"); XLSX.writeFile(wb, `營運紀錄_${startDate}.xlsx`);
@@ -839,7 +855,6 @@
                                                     return (<button key={val} onClick={() => setEditOrder({...editOrder, invoice: {...(editOrder.invoice || {}), type: val}})} className={`flex-1 py-2 rounded-lg text-xs font-bold border ${currentType === val ? 'bg-slate-700 text-white' : 'bg-white text-slate-500'}`}>{label}</button>); 
                                                 })}
                                             </div>
-                                            {/* 動態欄位顯示 */}
                                             {(editOrder.invoice?.type === 'company') && (
                                                 <input type="text" placeholder="統編 (8碼)" className="w-full p-2 rounded-lg border text-sm" value={editOrder.invoice?.taxId || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, taxId: e.target.value}})} />
                                             )}
