@@ -123,24 +123,48 @@
         const OptimizedImage = memo(({ src, alt, className }) => {
             const [loaded, setLoaded] = useState(false);
             const [error, setError] = useState(false);
+            
+            // 增強版：自動修復 Github URL 錯誤並處理中文網址
             const optimizedSrc = useMemo(() => {
                 if (!src) return '';
-                if (src.includes('raw.githubusercontent.com')) {
-                    try {
-                        const url = new URL(src);
-                        const pathParts = url.pathname.split('/').filter(p => p);
-                        if (pathParts.length >= 4) {
-                            return `https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`;
-                        }
-                    } catch (e) { return src; }
+                
+                let processedSrc = src.trim();
+
+                // 自動修正誤貼成 blob (網頁版) 的 Github 網址
+                if (processedSrc.includes('github.com') && processedSrc.includes('/blob/')) {
+                    processedSrc = processedSrc.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
                 }
-                return src;
+
+                if (processedSrc.includes('raw.githubusercontent.com')) {
+                    try {
+                        const url = new URL(processedSrc);
+                        const pathParts = url.pathname.split('/').filter(p => p);
+                        // 將 raw.githubusercontent.com 轉換為更快的 jsdelivr CDN
+                        if (pathParts.length >= 4) {
+                            // 使用 encodeURI 確保如果檔名仍有中文，不會因為傳輸格式錯誤而破圖
+                            return encodeURI(`https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`);
+                        }
+                    } catch (e) { 
+                        return encodeURI(processedSrc); 
+                    }
+                }
+                
+                return encodeURI(processedSrc);
             }, [src]);
+
             if (error || !src) return <div className={`flex items-center justify-center bg-slate-100 text-slate-300 ${className}`}><Icons.Image /></div>;
             return (
                 <div className={`relative overflow-hidden ${className}`}>
                     {!loaded && <div className="absolute inset-0 bg-slate-200 animate-pulse" />}
-                    <img src={optimizedSrc} alt={alt} loading="lazy" decoding="async" className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`} onLoad={() => setLoaded(true)} onError={() => setError(true)} />
+                    <img 
+                        src={optimizedSrc} 
+                        alt={alt} 
+                        loading="lazy" 
+                        decoding="async" 
+                        className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`} 
+                        onLoad={() => setLoaded(true)} 
+                        onError={() => setError(true)} 
+                    />
                 </div>
             );
         });
@@ -231,7 +255,6 @@
                         finalPrice: isSale ? finalPrice : 0, staff: selectedStaff,
                         payment: isSale ? selectedPayment : '無', notes, timestamp,
                         searchText: `${orderNo} ${selectedStaff} ${isSale ? selectedPayment : ''} ${notes} ${cart.map(i => i.name).join(' ')}`.toLowerCase(),
-                        // 新增狀態預設值
                         hasInvoice: false,
                         hasNeweb: false
                     };
@@ -270,7 +293,6 @@
                                 {invoiceType === 'personal' && (
                                     <div className="space-y-2">
                                         <select className="w-full p-3 rounded-lg border outline-none text-sm font-bold bg-white" value={carrierType} onChange={e => setCarrierType(e.target.value)}><option value="print">列印紙本證明聯</option><option value="mobile">手機條碼載具</option><option value="cert">自然人憑證載具</option><option value="ezpay">ezPay 會員載具</option></select>
-                                        {/* 修正手機條碼輸入：強制 URL 模式與關閉修正以支援掃描器 */}
                                         {carrierType === 'mobile' && <input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" placeholder="輸入手機條碼 (例如: /AB1234)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value.toUpperCase())} />}
                                         {carrierType === 'cert' && <input type="text" placeholder="輸入憑證號碼 (16碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
                                         {carrierType === 'ezpay' && <input type="email" placeholder="輸入會員 Email" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
@@ -579,7 +601,7 @@
                                 {filteredProducts.map(p => (
                                     <div key={p.id} className="bg-white p-5 rounded-[2rem] border shadow-sm font-sans font-bold">
                                         <div className="flex justify-between items-start mb-4">
-                                            <div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
+                                            <div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <OptimizedImage src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
                                             <span className={`px-4 py-2 rounded-full text-xs font-black shadow-sm ${inventory[p.id] <= 5 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>{inventory[p.id] || 0}</span>
                                         </div>
                                         <div className="grid grid-cols-2 gap-2 mb-3">
@@ -927,7 +949,7 @@
             const SettingBlock = ({ title, data, coll, icon }) => {
                 const [val, setVal] = useState(''); const [num, setNum] = useState(0); const [type, setType] = useState('amount'); const isDiscount = coll === 'settings_discounts';
                 const add = async () => { if(!val) return; await getColl(coll).add({ name: val, value: isDiscount ? num : null, type: isDiscount ? type : null, order: data.length }); setVal(''); setNum(0); };
-                const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.CreditCard : icon === 'percent' ? Icons.Percent : Icons.Tag;
+                const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.Percent : icon === 'percent' ? Icons.Percent : Icons.Tag;
 
                 return (
                     <div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 font-sans font-bold h-full flex flex-col font-sans font-bold">
@@ -997,6 +1019,7 @@
             const [view, setView] = useState('sales');
             const [user, setUser] = useState(null);
             const [loading, setLoading] = useState(true);
+            const [authError, setAuthError] = useState(null); // 新增：驗證錯誤狀態
             const [products, setProducts] = useState([]);
             const [inventory, setInventory] = useState({});
             const [staffs, setStaffs] = useState([]);
@@ -1008,9 +1031,22 @@
             const [confirmState, setConfirmState] = useState(null);
 
             useEffect(() => {
-                const initAuth = async () => { try { await auth.signInAnonymously(); } finally { setLoading(false); } };
+                const initAuth = async () => { 
+                    try { 
+                        await auth.signInAnonymously(); 
+                    } catch (err) {
+                        console.error("Firebase Auth 錯誤:", err);
+                        // 攔截並記錄 Firebase 網域限制錯誤
+                        setAuthError(err.message || "發生未知驗證錯誤");
+                    } finally { 
+                        setLoading(false); 
+                    } 
+                };
                 initAuth();
-                const unsubAuth = auth.onAuthStateChanged(u => setUser(u));
+                const unsubAuth = auth.onAuthStateChanged(u => {
+                    setUser(u);
+                    if (u) setAuthError(null);
+                });
                 return () => unsubAuth();
             }, []);
 
@@ -1029,6 +1065,39 @@
             }, [user]);
 
             if (loading) return (<div className="fixed inset-0 flex items-center justify-center bg-white z-50 text-center animate-pulse"><div className="space-y-6"><div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto font-sans font-bold"></div><p className="text-slate-400 font-black tracking-widest uppercase text-[10px]">加密安全同步中...</p></div></div>);
+
+            // 新增：如果發生 API Domain 攔截錯誤，顯示清晰的指引介面
+            if (authError) {
+                return (
+                    <div className="fixed inset-0 flex items-center justify-center bg-slate-50 z-50 p-4 font-sans">
+                        <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-lg w-full space-y-6 border border-slate-100">
+                            <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto"><Icons.Alert /></div>
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-black text-slate-800">API 網域遭攔截 (403)</h2>
+                                <p className="text-sm text-slate-500 font-bold">因為目前的預覽網域不在您的 Firebase 允許清單內，無法進行登入與資料讀取。</p>
+                            </div>
+                            <div className="bg-slate-50 p-4 rounded-xl text-xs text-rose-600 font-mono break-all border border-rose-100">
+                                {authError}
+                            </div>
+                            <div className="text-sm text-slate-700 font-bold space-y-3 bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
+                                <p className="font-black text-indigo-700 flex items-center gap-2">💡 解法說明：</p>
+                                <ol className="list-decimal pl-5 space-y-2">
+                                    <li>前往 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" className="text-indigo-600 hover:underline">Google Cloud Console - 憑證設定</a></li>
+                                    <li>選擇專案 <strong>my-pos-be7b2</strong> 的 API 金鑰。</li>
+                                    <li>在「HTTP 參照網址 (HTTP referrers)」清單中，新增此預覽網域 (注意 <strong>/*</strong> 是必填的，代表允許所有子路徑)：<br/>
+                                        <code className="bg-white px-2 py-1 rounded text-indigo-600 mt-1 inline-block border shadow-sm font-black text-lg break-all">*.scf.usercontent.goog/*</code>
+                                    </li>
+                                    <li>儲存後等待約 5 分鐘，然後點擊下方按鈕重試。</li>
+                                </ol>
+                            </div>
+                            <div className="mt-6 flex justify-center">
+                                <button onClick={() => window.location.reload()} className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black shadow-lg active:scale-95 transition-transform">我設定好了，重新載入</button>
+                            </div>
+                            <p className="text-center text-xs text-slate-400 font-bold">如果您是直接部署到 GitHub Pages，而 GitHub Pages 的網域已有設定，那邊仍可正常運作不受影響。</p>
+                        </div>
+                    </div>
+                );
+            }
 
             return (
                 <div className="min-h-screen app-height flex flex-col md:flex-row bg-slate-50 text-slate-800 overflow-hidden font-sans font-bold">
