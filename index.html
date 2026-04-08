@@ -127,8 +127,6 @@ const [error, setError] = useState(false);
             // 增強版：自動修復 Github URL 錯誤並處理中文網址
 const optimizedSrc = useMemo(() => {
 if (!src) return '';
-                if (src.includes('raw.githubusercontent.com')) {
-                
                 let processedSrc = src.trim();
 
                 // 自動修正誤貼成 blob (網頁版) 的 Github 網址
@@ -138,22 +136,17 @@ if (!src) return '';
 
                 if (processedSrc.includes('raw.githubusercontent.com')) {
 try {
-                        const url = new URL(src);
                         const url = new URL(processedSrc);
 const pathParts = url.pathname.split('/').filter(p => p);
                         // 將 raw.githubusercontent.com 轉換為更快的 jsdelivr CDN
 if (pathParts.length >= 4) {
-                            return `https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`;
                             // 使用 encodeURI 確保如果檔名仍有中文，不會因為傳輸格式錯誤而破圖
                             return encodeURI(`https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`);
 }
-                    } catch (e) { return src; }
                     } catch (e) { 
                         return encodeURI(processedSrc); 
                     }
 }
-                return src;
-                
                 return encodeURI(processedSrc);
 }, [src]);
 
@@ -161,7 +154,6 @@ if (error || !src) return <div className={`flex items-center justify-center bg-s
 return (
 <div className={`relative overflow-hidden ${className}`}>
 {!loaded && <div className="absolute inset-0 bg-slate-200 animate-pulse" />}
-                    <img src={optimizedSrc} alt={alt} loading="lazy" decoding="async" className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`} onLoad={() => setLoaded(true)} onError={() => setError(true)} />
                     <img 
                         src={optimizedSrc} 
                         alt={alt} 
@@ -609,7 +601,6 @@ return (
 {filteredProducts.map(p => (
 <div key={p.id} className="bg-white p-5 rounded-[2rem] border shadow-sm font-sans font-bold">
 <div className="flex justify-between items-start mb-4">
-                                            <div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
                                             <div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <OptimizedImage src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
 <span className={`px-4 py-2 rounded-full text-xs font-black shadow-sm ${inventory[p.id] <= 5 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>{inventory[p.id] || 0}</span>
 </div>
@@ -959,7 +950,6 @@ const SettingBlock = ({ title, data, coll, icon }) => {
 const [val, setVal] = useState(''); const [num, setNum] = useState(0); const [type, setType] = useState('amount'); const isDiscount = coll === 'settings_discounts';
 const add = async () => { if(!val) return; await getColl(coll).add({ name: val, value: isDiscount ? num : null, type: isDiscount ? type : null, order: data.length }); setVal(''); setNum(0); };
                 const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.CreditCard : icon === 'percent' ? Icons.Percent : Icons.Tag;
-                const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.Percent : icon === 'percent' ? Icons.Percent : Icons.Tag;
 
 return (
 <div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 font-sans font-bold h-full flex flex-col font-sans font-bold">
@@ -1041,7 +1031,6 @@ const [cart, setCart] = useState([]);
 const [confirmState, setConfirmState] = useState(null);
 
 useEffect(() => {
-                const initAuth = async () => { try { await auth.signInAnonymously(); } finally { setLoading(false); } };
                 const initAuth = async () => { 
                     try { 
                         await auth.signInAnonymously(); 
@@ -1054,7 +1043,6 @@ useEffect(() => {
                     } 
                 };
 initAuth();
-                const unsubAuth = auth.onAuthStateChanged(u => setUser(u));
                 const unsubAuth = auth.onAuthStateChanged(u => {
                     setUser(u);
                     if (u) setAuthError(null);
