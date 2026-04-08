@@ -1,788 +1,767 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>流光行動 POS 系統 - 專業進階版</title>
-    
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="SILK POS">
-    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9425/9425114.png">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>流光行動 POS 系統 - 專業進階版</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@0.263.0"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-    
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="SILK POS">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/9425/9425114.png">
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; overscroll-behavior: none; color: #1e293b; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .drag-handle { cursor: grab; touch-action: none; }
-        .drag-handle:active { cursor: grabbing; }
-        .sortable-ghost { opacity: 0.4; background-color: #e0e7ff !important; }
-        @media (display-mode: standalone) { nav { padding-top: 30px; } }
-        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-        input[type=number] { -moz-appearance: textfield; }
-        button:active { transform: scale(0.96); transition: transform 0.1s; }
-        .sidebar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        /* iPad Safari Fix for 100vh */
-        .app-height { height: 100vh; height: 100dvh; }
-        /* Checkbox Custom Style */
-        .custom-checkbox { width: 1.25rem; height: 1.25rem; border-radius: 0.375rem; border: 2px solid #cbd5e1; cursor: pointer; }
-        .custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
-    </style>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script src="https://unpkg.com/lucide@0.263.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700;900&display=swap');
+body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; overscroll-behavior: none; color: #1e293b; }
+.scrollbar-hide::-webkit-scrollbar { display: none; }
+.drag-handle { cursor: grab; touch-action: none; }
+.drag-handle:active { cursor: grabbing; }
+.sortable-ghost { opacity: 0.4; background-color: #e0e7ff !important; }
+@media (display-mode: standalone) { nav { padding-top: 30px; } }
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+button:active { transform: scale(0.96); transition: transform 0.1s; }
+.sidebar-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+/* iPad Safari Fix for 100vh */
+.app-height { height: 100vh; height: 100dvh; }
+/* Checkbox Custom Style */
+.custom-checkbox { width: 1.25rem; height: 1.25rem; border-radius: 0.375rem; border: 2px solid #cbd5e1; cursor: pointer; }
+.custom-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
+</style>
 </head>
 <body>
-    <div id="root"></div>
+<div id="root"></div>
 
-    <script type="text/babel">
-        const { useState, useEffect, useMemo, useRef, useCallback, memo } = React;
+<script type="text/babel">
+const { useState, useEffect, useMemo, useRef, useCallback, memo } = React;
 
-        // ========================================================
-        // ⚠️ Firebase 配置
-        // ========================================================
-        const firebaseConfig = {
-            apiKey: "AIzaSyDKj0O-cN9e4qQ0f7LTxNRutOjB-LUX5qk",
-            authDomain: "my-pos-be7b2.firebaseapp.com",
-            projectId: "my-pos-be7b2",
-            storageBucket: "my-pos-be7b2.firebasestorage.app",
-            messagingSenderId: "499859190156",
-            appId: "1:499859190156:web:bcd8dbce13055b6c1e26a9",
-            measurementId: "G-G76PVXEXPB"
-        };
-        
-        const appId = 'pos-pro-v2-main';
+// ========================================================
+// ⚠️ Firebase 配置
+// ========================================================
+const firebaseConfig = {
+apiKey: "AIzaSyDKj0O-cN9e4qQ0f7LTxNRutOjB-LUX5qk",
+authDomain: "my-pos-be7b2.firebaseapp.com",
+projectId: "my-pos-be7b2",
+storageBucket: "my-pos-be7b2.firebasestorage.app",
+messagingSenderId: "499859190156",
+appId: "1:499859190156:web:bcd8dbce13055b6c1e26a9",
+measurementId: "G-G76PVXEXPB"
+};
 
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+const appId = 'pos-pro-v2-main';
 
-        const db = firebase.firestore();
-        const auth = firebase.auth();
-        const getColl = (name) => db.collection('artifacts').doc(appId).collection('public').doc('data').collection(name);
+if (!firebase.apps.length) {
+firebase.initializeApp(firebaseConfig);
+}
 
-        // --- Helper Functions ---
-        const getSafeDate = (t) => {
-            if (!t) return new Date();
-            if (typeof t.toDate === 'function') return t.toDate(); 
-            if (t.seconds) return new Date(t.seconds * 1000); 
-            return new Date(t); 
-        };
+const db = firebase.firestore();
+const auth = firebase.auth();
+const getColl = (name) => db.collection('artifacts').doc(appId).collection('public').doc('data').collection(name);
 
-        const toLocalYMD = (dateInput) => {
-            const date = new Date(dateInput);
-            const offset = date.getTimezoneOffset() * 60000;
-            const localDate = new Date(date.getTime() - offset);
-            return localDate.toISOString().split('T')[0];
-        };
+// --- Helper Functions ---
+const getSafeDate = (t) => {
+if (!t) return new Date();
+if (typeof t.toDate === 'function') return t.toDate(); 
+if (t.seconds) return new Date(t.seconds * 1000); 
+return new Date(t); 
+};
 
-        // --- 1. 內建圖示庫 (Icon System) ---
-        const Icon = ({ path, className = "w-6 h-6" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                {path}
-            </svg>
-        );
-        const Icons = {
-            Search: () => <Icon path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>} />,
-            Barcode: () => <Icon path={<><path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></>} />,
-            Cart: () => <Icon path={<><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></>} />,
-            Plus: () => <Icon path={<><path d="M5 12h14"/><path d="M12 5v14"/></>} className="w-4 h-4"/>,
-            MinusCircle: () => <Icon path={<><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></>} />,
-            PlusCircle: () => <Icon path={<><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></>} />,
-            ChevronRight: () => <Icon path={<><path d="m9 18 6-6-6-6"/></>} />,
-            Image: () => <Icon path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} className="w-10 h-10"/>,
-            Truck: () => <Icon path={<><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/></>} />,
-            Clipboard: () => <Icon path={<><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></>} className="w-16 h-16"/>,
-            CheckCircle: () => <Icon path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></>} />,
-            History: () => <Icon path={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l3 3"/></>} />,
-            Settings: () => <Icon path={<><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>} />,
-            Package: () => <Icon path={<><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22v-9"/></>} />,
-            Trash: () => <Icon path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></>} className="w-4 h-4"/>,
-            Edit: () => <Icon path={<><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></>} className="w-4 h-4"/>,
-            Grip: () => <Icon path={<><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></>} className="w-5 h-5 text-slate-300"/>,
-            X: () => <Icon path={<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>} />,
-            Alert: () => <Icon path={<><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} className="w-12 h-12"/>,
-            Users: () => <Icon path={<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />,
-            CreditCard: () => <Icon path={<><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></>} />,
-            Tag: () => <Icon path={<><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></>} />,
-            Percent: () => <Icon path={<><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></>} />,
-            FileXls: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></>} />,
-            FileText: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></>} />
-        };
+const toLocalYMD = (dateInput) => {
+const date = new Date(dateInput);
+const offset = date.getTimezoneOffset() * 60000;
+const localDate = new Date(date.getTime() - offset);
+return localDate.toISOString().split('T')[0];
+};
 
-        // --- 2. 基礎 UI 組件 ---
-        const OptimizedImage = memo(({ src, alt, className }) => {
-            const [loaded, setLoaded] = useState(false);
-            const [error, setError] = useState(false);
-            
-            // 增強版：自動修復 Github URL 錯誤並處理中文網址
-            const optimizedSrc = useMemo(() => {
-                if (!src) return '';
-                
-                let processedSrc = src.trim();
+// --- 1. 內建圖示庫 (Icon System) ---
+const Icon = ({ path, className = "w-6 h-6" }) => (
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+{path}
+</svg>
+);
+const Icons = {
+Search: () => <Icon path={<><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></>} />,
+Barcode: () => <Icon path={<><path d="M3 5v14"/><path d="M8 5v14"/><path d="M12 5v14"/><path d="M17 5v14"/><path d="M21 5v14"/></>} />,
+Cart: () => <Icon path={<><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></>} />,
+Plus: () => <Icon path={<><path d="M5 12h14"/><path d="M12 5v14"/></>} className="w-4 h-4"/>,
+MinusCircle: () => <Icon path={<><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></>} />,
+PlusCircle: () => <Icon path={<><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/><path d="M12 8v8"/></>} />,
+ChevronRight: () => <Icon path={<><path d="m9 18 6-6-6-6"/></>} />,
+Image: () => <Icon path={<><rect width="18" height="18" x="3" y="3" rx="2" ry="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></>} className="w-10 h-10"/>,
+Truck: () => <Icon path={<><path d="M5 18H3c-.6 0-1-.4-1-1V7c0-.6.4-1 1-1h10c.6 0 1 .4 1 1v11"/><path d="M14 9h4l4 4v4c0 .6-.4 1-1 1h-2"/><circle cx="7" cy="18" r="2"/><path d="M15 18H9"/><circle cx="17" cy="18" r="2"/></>} />,
+Clipboard: () => <Icon path={<><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></>} className="w-16 h-16"/>,
+CheckCircle: () => <Icon path={<><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><path d="m9 11 3 3L22 4"/></>} />,
+History: () => <Icon path={<><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 12"/><path d="M3 3v9h9"/><path d="M12 7v5l3 3"/></>} />,
+Settings: () => <Icon path={<><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.09a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></>} />,
+Package: () => <Icon path={<><path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22v-9"/></>} />,
+Trash: () => <Icon path={<><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></>} className="w-4 h-4"/>,
+Edit: () => <Icon path={<><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></>} className="w-4 h-4"/>,
+Grip: () => <Icon path={<><circle cx="9" cy="12" r="1"/><circle cx="9" cy="5" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="19" r="1"/></>} className="w-5 h-5 text-slate-300"/>,
+X: () => <Icon path={<><path d="M18 6 6 18"/><path d="m6 6 12 12"/></>} />,
+Alert: () => <Icon path={<><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></>} className="w-12 h-12"/>,
+Users: () => <Icon path={<><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>} />,
+CreditCard: () => <Icon path={<><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></>} />,
+Tag: () => <Icon path={<><path d="M12 2H2v10l9.29 9.29c.94.94 2.48.94 3.42 0l6.58-6.58c.94-.94.94-2.48 0-3.42L12 2Z"/><path d="M7 7h.01"/></>} />,
+Percent: () => <Icon path={<><line x1="19" x2="5" y1="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></>} />,
+FileXls: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M8 13h2"/><path d="M8 17h2"/><path d="M14 13h2"/><path d="M14 17h2"/></>} />,
+FileText: () => <Icon path={<><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></>} />
+};
 
-                // 自動修正誤貼成 blob (網頁版) 的 Github 網址
-                if (processedSrc.includes('github.com') && processedSrc.includes('/blob/')) {
-                    processedSrc = processedSrc.replace('github.com', 'raw.githubusercontent.com').replace('/blob/', '/');
-                }
+// --- 2. 基礎 UI 組件 ---
+const OptimizedImage = memo(({ src, alt, className }) => {
+const [loaded, setLoaded] = useState(false);
+const [error, setError] = useState(false);
+const optimizedSrc = useMemo(() => {
+if (!src) return '';
+if (src.includes('raw.githubusercontent.com')) {
+try {
+const url = new URL(src);
+const pathParts = url.pathname.split('/').filter(p => p);
+if (pathParts.length >= 4) {
+return `https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`;
+}
+} catch (e) { return src; }
+}
+return src;
+}, [src]);
+if (error || !src) return <div className={`flex items-center justify-center bg-slate-100 text-slate-300 ${className}`}><Icons.Image /></div>;
+return (
+<div className={`relative overflow-hidden ${className}`}>
+{!loaded && <div className="absolute inset-0 bg-slate-200 animate-pulse" />}
+<img src={optimizedSrc} alt={alt} loading="lazy" decoding="async" className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`} onLoad={() => setLoaded(true)} onError={() => setError(true)} />
+</div>
+);
+});
 
-                if (processedSrc.includes('raw.githubusercontent.com')) {
-                    try {
-                        const url = new URL(processedSrc);
-                        const pathParts = url.pathname.split('/').filter(p => p);
-                        // 將 raw.githubusercontent.com 轉換為更快的 jsdelivr CDN
-                        if (pathParts.length >= 4) {
-                            // 使用 encodeURI 確保如果檔名仍有中文，不會因為傳輸格式錯誤而破圖
-                            return encodeURI(`https://cdn.jsdelivr.net/gh/${pathParts[0]}/${pathParts[1]}@${pathParts[2]}/${pathParts.slice(3).join('/')}`);
-                        }
-                    } catch (e) { 
-                        return encodeURI(processedSrc); 
-                    }
-                }
-                
-                return encodeURI(processedSrc);
-            }, [src]);
+const Modal = ({ title, children, onClose, wide = false }) => (
+<div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm text-slate-800 font-sans">
+<div className={`bg-white rounded-3xl shadow-2xl w-full ${wide ? 'max-w-4xl' : 'max-w-lg'} overflow-hidden flex flex-col max-h-[90vh]`}>
+<div className="p-6 border-b flex justify-between items-center bg-slate-50 font-bold">
+<h3 className="text-xl font-black">{title}</h3>
+<button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-400 transition-colors"><Icons.X /></button>
+</div>
+<div className="p-6 overflow-y-auto flex-1">{children}</div>
+</div>
+</div>
+);
 
-            if (error || !src) return <div className={`flex items-center justify-center bg-slate-100 text-slate-300 ${className}`}><Icons.Image /></div>;
-            return (
-                <div className={`relative overflow-hidden ${className}`}>
-                    {!loaded && <div className="absolute inset-0 bg-slate-200 animate-pulse" />}
-                    <img 
-                        src={optimizedSrc} 
-                        alt={alt} 
-                        loading="lazy" 
-                        decoding="async" 
-                        className={`w-full h-full object-cover transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`} 
-                        onLoad={() => setLoaded(true)} 
-                        onError={() => setError(true)} 
-                    />
-                </div>
-            );
-        });
+const ConfirmModal = ({ title, message, onConfirm, onCancel }) => (
+<div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md text-slate-800">
+<div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden p-8 text-center space-y-6 font-bold">
+<div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto text-rose-500"><Icons.Alert /></div>
+<div className="space-y-2"><h3 className="text-2xl font-bold text-slate-800">{title}</h3><p className="text-slate-500 font-medium">{message}</p></div>
+<div className="flex gap-4"><button onClick={onCancel} className="flex-1 py-4 bg-slate-100 rounded-2xl">取消</button><button onClick={onConfirm} className="flex-1 py-4 bg-rose-500 text-white rounded-2xl">確認</button></div>
+</div>
+</div>
+);
 
-        const Modal = ({ title, children, onClose, wide = false }) => (
-            <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm text-slate-800 font-sans">
-                <div className={`bg-white rounded-3xl shadow-2xl w-full ${wide ? 'max-w-4xl' : 'max-w-lg'} overflow-hidden flex flex-col max-h-[90vh]`}>
-                    <div className="p-6 border-b flex justify-between items-center bg-slate-50 font-bold">
-                        <h3 className="text-xl font-black">{title}</h3>
-                        <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full text-slate-400 transition-colors"><Icons.X /></button>
-                    </div>
-                    <div className="p-6 overflow-y-auto flex-1">{children}</div>
-                </div>
-            </div>
-        );
+const DraggableList = ({ items, onSorted, renderItem, component: Component = 'div', className = "" }) => {
+const listRef = useRef(null);
+useEffect(() => {
+if (!listRef.current || items.length === 0) return;
+const sortable = Sortable.create(listRef.current, { animation: 150, ghostClass: 'sortable-ghost', handle: '.drag-handle', onEnd: (evt) => {
+const { oldIndex, newIndex } = evt; if (oldIndex === newIndex) return;
+const newItems = [...items]; const [moved] = newItems.splice(oldIndex, 1); newItems.splice(newIndex, 0, moved); onSorted(newItems);
+}});
+return () => sortable.destroy();
+}, [items, onSorted]);
+return <Component ref={listRef} className={className}>{items.map((item, idx) => renderItem(item, idx))}</Component>;
+};
 
-        const ConfirmModal = ({ title, message, onConfirm, onCancel }) => (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/50 backdrop-blur-md text-slate-800">
-                <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-sm overflow-hidden p-8 text-center space-y-6 font-bold">
-                    <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto text-rose-500"><Icons.Alert /></div>
-                    <div className="space-y-2"><h3 className="text-2xl font-bold text-slate-800">{title}</h3><p className="text-slate-500 font-medium">{message}</p></div>
-                    <div className="flex gap-4"><button onClick={onCancel} className="flex-1 py-4 bg-slate-100 rounded-2xl">取消</button><button onClick={onConfirm} className="flex-1 py-4 bg-rose-500 text-white rounded-2xl">確認</button></div>
-                </div>
-            </div>
-        );
+// --- 3. 核心業務邏輯元件 ---
+const CheckoutModal = ({ cart, subtotal, staffs, discounts = [], payments, onClose, onSuccess, type = "SALE" }) => {
+const [selectedStaff, setSelectedStaff] = useState('');
+const [selectedDiscounts, setSelectedDiscounts] = useState([]); 
+const [selectedPayment, setSelectedPayment] = useState('');
+const [selectedDate, setSelectedDate] = useState(toLocalYMD(new Date())); 
+const [notes, setNotes] = useState('');
 
-        const DraggableList = ({ items, onSorted, renderItem, component: Component = 'div', className = "" }) => {
-            const listRef = useRef(null);
-            useEffect(() => {
-                if (!listRef.current || items.length === 0) return;
-                const sortable = Sortable.create(listRef.current, { animation: 150, ghostClass: 'sortable-ghost', handle: '.drag-handle', onEnd: (evt) => {
-                        const { oldIndex, newIndex } = evt; if (oldIndex === newIndex) return;
-                        const newItems = [...items]; const [moved] = newItems.splice(oldIndex, 1); newItems.splice(newIndex, 0, moved); onSorted(newItems);
-                }});
-                return () => sortable.destroy();
-            }, [items, onSorted]);
-            return <Component ref={listRef} className={className}>{items.map((item, idx) => renderItem(item, idx))}</Component>;
-        };
+// 發票
+const [invoiceType, setInvoiceType] = useState('personal');
+const [carrierType, setCarrierType] = useState('print');
+const [taxId, setTaxId] = useState('');
+const [loveCode, setLoveCode] = useState('');
+const [carrierNum, setCarrierNum] = useState('');
 
-        // --- 3. 核心業務邏輯元件 ---
-        const CheckoutModal = ({ cart, subtotal, staffs, discounts = [], payments, onClose, onSuccess, type = "SALE" }) => {
-            const [selectedStaff, setSelectedStaff] = useState('');
-            const [selectedDiscounts, setSelectedDiscounts] = useState([]); 
-            const [selectedPayment, setSelectedPayment] = useState('');
-            const [selectedDate, setSelectedDate] = useState(toLocalYMD(new Date())); 
-            const [notes, setNotes] = useState('');
-            
-            // 發票
-            const [invoiceType, setInvoiceType] = useState('personal');
-            const [carrierType, setCarrierType] = useState('print');
-            const [taxId, setTaxId] = useState('');
-            const [loveCode, setLoveCode] = useState('');
-            const [carrierNum, setCarrierNum] = useState('');
+const [isSubmitting, setIsSubmitting] = useState(false);
+const isSale = type === "SALE";
 
-            const [isSubmitting, setIsSubmitting] = useState(false);
-            const isSale = type === "SALE";
+const toggleDiscount = (d) => {
+if (selectedDiscounts.find(item => item.id === d.id)) setSelectedDiscounts(selectedDiscounts.filter(item => item.id !== d.id));
+else setSelectedDiscounts([...selectedDiscounts, d]);
+};
 
-            const toggleDiscount = (d) => {
-                if (selectedDiscounts.find(item => item.id === d.id)) setSelectedDiscounts(selectedDiscounts.filter(item => item.id !== d.id));
-                else setSelectedDiscounts([...selectedDiscounts, d]);
-            };
+const finalPrice = useMemo(() => {
+if (!isSale || selectedDiscounts.length === 0) return subtotal;
+let price = subtotal;
+const amountOff = selectedDiscounts.filter(d => d.type === 'amount').reduce((acc, d) => acc + (d.value || 0), 0);
+price -= amountOff;
+const percentOff = selectedDiscounts.filter(d => d.type === 'percent').reduce((acc, d) => acc + ((d.value || 0) / 100), 0);
+price = Math.round(price * (1 - percentOff));
+return Math.max(0, price);
+}, [subtotal, selectedDiscounts, isSale]);
 
-            const finalPrice = useMemo(() => {
-                if (!isSale || selectedDiscounts.length === 0) return subtotal;
-                let price = subtotal;
-                const amountOff = selectedDiscounts.filter(d => d.type === 'amount').reduce((acc, d) => acc + (d.value || 0), 0);
-                price -= amountOff;
-                const percentOff = selectedDiscounts.filter(d => d.type === 'percent').reduce((acc, d) => acc + ((d.value || 0) / 100), 0);
-                price = Math.round(price * (1 - percentOff));
-                return Math.max(0, price);
-            }, [subtotal, selectedDiscounts, isSale]);
+const handleCheckout = async () => {
+if (!selectedStaff || (isSale && !selectedPayment)) return;
+setIsSubmitting(true);
+try {
+const batch = db.batch();
+const orderNo = `${isSale ? 'ORD' : 'PUR'}-${Date.now()}`;
+const transRef = getColl('transactions').doc();
+const dateObj = new Date(selectedDate); dateObj.setHours(12, 0, 0, 0); 
+const timestamp = firebase.firestore.Timestamp.fromDate(dateObj);
 
-            const handleCheckout = async () => {
-                if (!selectedStaff || (isSale && !selectedPayment)) return;
-                setIsSubmitting(true);
-                try {
-                    const batch = db.batch();
-                    const orderNo = `${isSale ? 'ORD' : 'PUR'}-${Date.now()}`;
-                    const transRef = getColl('transactions').doc();
-                    const dateObj = new Date(selectedDate); dateObj.setHours(12, 0, 0, 0); 
-                    const timestamp = firebase.firestore.Timestamp.fromDate(dateObj);
+const transactionData = {
+orderNo, type, items: cart, subtotal, 
+discountName: isSale ? (selectedDiscounts.map(d => d.name).join(', ') || '無') : '-',
+discountValue: isSale ? selectedDiscounts.reduce((acc, d) => acc + (d.value || 0), 0) : 0,
+discountIds: isSale ? selectedDiscounts.map(d => d.id) : [],
+finalPrice: isSale ? finalPrice : 0, staff: selectedStaff,
+payment: isSale ? selectedPayment : '無', notes, timestamp,
+searchText: `${orderNo} ${selectedStaff} ${isSale ? selectedPayment : ''} ${notes} ${cart.map(i => i.name).join(' ')}`.toLowerCase(),
+// 新增狀態預設值
+hasInvoice: false,
+hasNeweb: false
+};
+if (isSale) {
+transactionData.invoice = {
+type: invoiceType,
+carrierType: invoiceType === 'personal' ? carrierType : 'none',
+carrierNum: invoiceType === 'personal' && carrierType !== 'print' ? carrierNum : '',
+taxId: invoiceType === 'company' ? taxId : '',
+loveCode: invoiceType === 'donation' ? loveCode : ''
+};
+}
+batch.set(transRef, transactionData);
+for (const item of cart) {
+const increment = isSale ? -item.qty : item.qty;
+batch.update(getColl('inventory').doc(item.id), { count: firebase.firestore.FieldValue.increment(increment) });
+}
+await batch.commit(); onSuccess();
+} catch (err) { console.error("結帳失敗:", err); } finally { setIsSubmitting(false); }
+};
 
-                    const transactionData = {
-                        orderNo, type, items: cart, subtotal, 
-                        discountName: isSale ? (selectedDiscounts.map(d => d.name).join(', ') || '無') : '-',
-                        discountValue: isSale ? selectedDiscounts.reduce((acc, d) => acc + (d.value || 0), 0) : 0,
-                        discountIds: isSale ? selectedDiscounts.map(d => d.id) : [],
-                        finalPrice: isSale ? finalPrice : 0, staff: selectedStaff,
-                        payment: isSale ? selectedPayment : '無', notes, timestamp,
-                        searchText: `${orderNo} ${selectedStaff} ${isSale ? selectedPayment : ''} ${notes} ${cart.map(i => i.name).join(' ')}`.toLowerCase(),
-                        hasInvoice: false,
-                        hasNeweb: false
-                    };
-                    if (isSale) {
-                        transactionData.invoice = {
-                            type: invoiceType,
-                            carrierType: invoiceType === 'personal' ? carrierType : 'none',
-                            carrierNum: invoiceType === 'personal' && carrierType !== 'print' ? carrierNum : '',
-                            taxId: invoiceType === 'company' ? taxId : '',
-                            loveCode: invoiceType === 'donation' ? loveCode : ''
-                        };
-                    }
-                    batch.set(transRef, transactionData);
-                    for (const item of cart) {
-                        const increment = isSale ? -item.qty : item.qty;
-                        batch.update(getColl('inventory').doc(item.id), { count: firebase.firestore.FieldValue.increment(increment) });
-                    }
-                    await batch.commit(); onSuccess();
-                } catch (err) { console.error("結帳失敗:", err); } finally { setIsSubmitting(false); }
-            };
-
-            return (
-                <Modal title={isSale ? "訂單結帳確認" : "入庫確認系統"} onClose={onClose}>
-                    <div className="space-y-6 text-slate-800 font-sans">
-                        <div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-white font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} /></div>
-                        <div className={`grid ${isSale ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
-                            <div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">人員</label><select className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" value={selectedStaff} onChange={e => setSelectedStaff(e.target.value)}><option value="">請選擇</option>{staffs.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
-                            {isSale && (<div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">方式</label><select className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" value={selectedPayment} onChange={e => setSelectedPayment(e.target.value)}><option value="">請選擇</option>{payments.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}</select></div>)}
-                        </div>
-                        {isSale && (
-                            <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
-                                <div className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Icons.FileText className="w-4 h-4"/>電子發票設定</div>
-                                <div className="flex gap-2">{['personal:個人', 'company:公司', 'donation:捐贈'].map(t => { const [val, label] = t.split(':'); return (<button key={val} onClick={() => setInvoiceType(val)} className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${invoiceType === val ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-500 border-slate-200'}`}>{label}</button>); })}</div>
-                                {invoiceType === 'company' && <input type="text" inputmode="numeric" placeholder="請輸入統一編號 (8碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={taxId} onChange={e => setTaxId(e.target.value)} />}
-                                {invoiceType === 'donation' && <input type="text" inputmode="numeric" placeholder="請輸入愛心碼 (例如: 5210)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={loveCode} onChange={e => setLoveCode(e.target.value)} />}
-                                {invoiceType === 'personal' && (
-                                    <div className="space-y-2">
-                                        <select className="w-full p-3 rounded-lg border outline-none text-sm font-bold bg-white" value={carrierType} onChange={e => setCarrierType(e.target.value)}><option value="print">列印紙本證明聯</option><option value="mobile">手機條碼載具</option><option value="cert">自然人憑證載具</option><option value="ezpay">ezPay 會員載具</option></select>
+return (
+<Modal title={isSale ? "訂單結帳確認" : "入庫確認系統"} onClose={onClose}>
+<div className="space-y-6 text-slate-800 font-sans">
+<div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-white font-bold text-slate-700 outline-none focus:ring-2 focus:ring-indigo-500" value={selectedDate} onChange={e => setSelectedDate(e.target.value)} /></div>
+<div className={`grid ${isSale ? 'grid-cols-2' : 'grid-cols-1'} gap-4`}>
+<div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">人員</label><select className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" value={selectedStaff} onChange={e => setSelectedStaff(e.target.value)}><option value="">請選擇</option>{staffs.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
+{isSale && (<div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">方式</label><select className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" value={selectedPayment} onChange={e => setSelectedPayment(e.target.value)}><option value="">請選擇</option>{payments.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}</select></div>)}
+</div>
+{isSale && (
+<div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+<div className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><Icons.FileText className="w-4 h-4"/>電子發票設定</div>
+<div className="flex gap-2">{['personal:個人', 'company:公司', 'donation:捐贈'].map(t => { const [val, label] = t.split(':'); return (<button key={val} onClick={() => setInvoiceType(val)} className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${invoiceType === val ? 'bg-slate-700 text-white border-slate-700' : 'bg-white text-slate-500 border-slate-200'}`}>{label}</button>); })}</div>
+{invoiceType === 'company' && <input type="text" inputmode="numeric" placeholder="請輸入統一編號 (8碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={taxId} onChange={e => setTaxId(e.target.value)} />}
+{invoiceType === 'donation' && <input type="text" inputmode="numeric" placeholder="請輸入愛心碼 (例如: 5210)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={loveCode} onChange={e => setLoveCode(e.target.value)} />}
+{invoiceType === 'personal' && (
+<div className="space-y-2">
+<select className="w-full p-3 rounded-lg border outline-none text-sm font-bold bg-white" value={carrierType} onChange={e => setCarrierType(e.target.value)}><option value="print">列印紙本證明聯</option><option value="mobile">手機條碼載具</option><option value="cert">自然人憑證載具</option><option value="ezpay">ezPay 會員載具</option></select>
+                                        {carrierType === 'mobile' && <input type="text" placeholder="輸入手機條碼 (例如: /AB1234)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value.toUpperCase())} />}
+                                        {/* 修正手機條碼輸入：強制 URL 模式與關閉修正以支援掃描器 */}
                                         {carrierType === 'mobile' && <input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" placeholder="輸入手機條碼 (例如: /AB1234)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value.toUpperCase())} />}
-                                        {carrierType === 'cert' && <input type="text" placeholder="輸入憑證號碼 (16碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
-                                        {carrierType === 'ezpay' && <input type="email" placeholder="輸入會員 Email" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                        {isSale && (<div><label className="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">折扣方案</label><div className="flex flex-wrap gap-2">{discounts.map(d => { const isActive = selectedDiscounts.find(item => item.id === d.id); return (<button key={d.id} onClick={() => toggleDiscount(d)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isActive ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400 border-slate-200'}`}>{d.name} {d.type === 'percent' ? `(${d.value}%)` : `(-$${d.value})`}</button>); })}</div></div>)}
-                        <div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">備註</label><textarea className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" rows="2" placeholder="..." value={notes} onChange={e => setNotes(e.target.value)}></textarea></div>
-                        {isSale && (<div className="p-6 rounded-[2rem] text-center bg-indigo-50 border-2 border-indigo-100 shadow-sm"><p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">應收總額</p><span className="text-5xl font-black text-indigo-700 tracking-tighter">${finalPrice}</span></div>)}
-                        <button disabled={!selectedStaff || (isSale && !selectedPayment) || isSubmitting} onClick={handleCheckout} className={`w-full py-5 rounded-2xl font-black shadow-xl text-white transition-all transform active:scale-95 ${isSale ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{isSubmitting ? '同步中...' : (isSale ? '完成交易' : '確認入庫')}</button>
-                    </div>
-                </Modal>
-            );
-        };
+{carrierType === 'cert' && <input type="text" placeholder="輸入憑證號碼 (16碼)" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
+{carrierType === 'ezpay' && <input type="email" placeholder="輸入會員 Email" className="w-full p-3 rounded-lg border outline-none text-sm font-bold" value={carrierNum} onChange={e => setCarrierNum(e.target.value)} />}
+</div>
+)}
+</div>
+)}
+{isSale && (<div><label className="block text-[10px] font-black text-slate-400 mb-2 uppercase tracking-widest">折扣方案</label><div className="flex flex-wrap gap-2">{discounts.map(d => { const isActive = selectedDiscounts.find(item => item.id === d.id); return (<button key={d.id} onClick={() => toggleDiscount(d)} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isActive ? 'bg-indigo-600 text-white shadow-lg' : 'bg-white text-slate-400 border-slate-200'}`}>{d.name} {d.type === 'percent' ? `(${d.value}%)` : `(-$${d.value})`}</button>); })}</div></div>)}
+<div><label className="block text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">備註</label><textarea className="w-full p-4 rounded-xl bg-slate-50 border outline-none font-bold" rows="2" placeholder="..." value={notes} onChange={e => setNotes(e.target.value)}></textarea></div>
+{isSale && (<div className="p-6 rounded-[2rem] text-center bg-indigo-50 border-2 border-indigo-100 shadow-sm"><p className="text-[10px] font-black text-slate-400 mb-1 uppercase tracking-widest">應收總額</p><span className="text-5xl font-black text-indigo-700 tracking-tighter">${finalPrice}</span></div>)}
+<button disabled={!selectedStaff || (isSale && !selectedPayment) || isSubmitting} onClick={handleCheckout} className={`w-full py-5 rounded-2xl font-black shadow-xl text-white transition-all transform active:scale-95 ${isSale ? 'bg-indigo-600 hover:bg-indigo-700' : 'bg-emerald-600 hover:bg-emerald-700'}`}>{isSubmitting ? '同步中...' : (isSale ? '完成交易' : '確認入庫')}</button>
+</div>
+</Modal>
+);
+};
 
-        const ProductEditor = ({ tags, productToEdit, onClose }) => {
-            const [name, setName] = useState(productToEdit?.name || '');
-            const [barcode, setBarcode] = useState(productToEdit?.barcode || '');
-            const [imageUrl, setImageUrl] = useState(productToEdit?.imageUrl || ''); 
-            const [options, setOptions] = useState(productToEdit?.options || [{ label: '原價', price: 0 }]);
-            const [selTags, setSelTags] = useState(productToEdit?.tags || []);
-            const [isSaving, setIsSaving] = useState(false);
-            const save = async () => { if (!name) return; setIsSaving(true); const data = { name, barcode, imageUrl, options, tags: selTags, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if (productToEdit) { await getColl('products').doc(productToEdit.id).update(data); } else { const ref = getColl('products').doc(); data.order = 999; await ref.set(data); await getColl('inventory').doc(ref.id).set({ count: 0 }); } onClose(); };
-            return (
-                <Modal title={productToEdit ? "修改資料" : "建立新品"} onClose={onClose} wide={true}>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 font-bold text-slate-800 font-sans">
-                        <div className="space-y-4 font-bold">
-                            <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-bold" value={name} onChange={e => setName(e.target.value)} /></div>
-                            <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">條碼 (預設英文)</label><input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-mono" value={barcode} onChange={e => setBarcode(e.target.value)} /></div>
-                            <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-indigo-600 font-black">圖片連結</label><input type="text" className="w-full p-4 rounded-xl border bg-indigo-50/30 outline-none font-black border-indigo-100 font-sans font-bold" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} /></div>
-                            <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">標籤</label><div className="flex flex-wrap gap-2 mt-2 font-sans font-bold">{tags.map(t => <button key={t.id} onClick={() => selTags.includes(t.name) ? setSelTags(selTags.filter(x => x !== t.name)) : setSelTags([...selTags, t.name])} className={`px-3 py-1.5 rounded-xl text-[10px] border transition-all font-black uppercase font-sans font-bold ${selTags.includes(t.name) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>{t.name}</button>)}</div></div>
-                        </div>
-                        <div className="space-y-4 font-bold">
-                            <div className="flex justify-between items-center font-bold"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">規格價格</label><button onClick={() => setOptions([...options, {label: '', price: 0}])} className="text-xs text-indigo-600 font-black hover:underline uppercase tracking-widest">+ 新增</button></div>
-                            <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 scrollbar-hide font-bold">
-                                {options.map((opt, i) => (<div key={i} className="flex gap-2 font-bold"><input type="text" className="flex-1 p-3 rounded-xl border bg-slate-50 outline-none text-sm font-bold" placeholder="..." value={opt.label} onChange={e => { const n = [...options]; n[i].label = e.target.value; setOptions(n); }} /><input type="number" inputmode="numeric" className="w-24 p-3 rounded-xl border bg-slate-50 outline-none text-sm font-bold" placeholder="..." value={opt.price} onChange={e => { const n = [...options]; n[i].price = parseInt(e.target.value) || 0; setOptions(n); }} /></div>))}
-                            </div>
-                            <button disabled={isSaving} onClick={save} className="w-full py-5 bg-indigo-600 text-white rounded-xl font-black shadow-xl">{isSaving ? '處理中...' : '確認儲存'}</button>
-                        </div>
-                    </div>
-                </Modal>
-            );
-        };
+const ProductEditor = ({ tags, productToEdit, onClose }) => {
+const [name, setName] = useState(productToEdit?.name || '');
+const [barcode, setBarcode] = useState(productToEdit?.barcode || '');
+const [imageUrl, setImageUrl] = useState(productToEdit?.imageUrl || ''); 
+const [options, setOptions] = useState(productToEdit?.options || [{ label: '原價', price: 0 }]);
+const [selTags, setSelTags] = useState(productToEdit?.tags || []);
+const [isSaving, setIsSaving] = useState(false);
+const save = async () => { if (!name) return; setIsSaving(true); const data = { name, barcode, imageUrl, options, tags: selTags, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if (productToEdit) { await getColl('products').doc(productToEdit.id).update(data); } else { const ref = getColl('products').doc(); data.order = 999; await ref.set(data); await getColl('inventory').doc(ref.id).set({ count: 0 }); } onClose(); };
+return (
+<Modal title={productToEdit ? "修改資料" : "建立新品"} onClose={onClose} wide={true}>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-10 font-bold text-slate-800 font-sans">
+<div className="space-y-4 font-bold">
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-bold" value={name} onChange={e => setName(e.target.value)} /></div>
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">條碼 (預設英文)</label><input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-mono" value={barcode} onChange={e => setBarcode(e.target.value)} /></div>
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-indigo-600 font-black">圖片連結</label><input type="text" className="w-full p-4 rounded-xl border bg-indigo-50/30 outline-none font-black border-indigo-100 font-sans font-bold" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} /></div>
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">標籤</label><div className="flex flex-wrap gap-2 mt-2 font-sans font-bold">{tags.map(t => <button key={t.id} onClick={() => selTags.includes(t.name) ? setSelTags(selTags.filter(x => x !== t.name)) : setSelTags([...selTags, t.name])} className={`px-3 py-1.5 rounded-xl text-[10px] border transition-all font-black uppercase font-sans font-bold ${selTags.includes(t.name) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>{t.name}</button>)}</div></div>
+</div>
+<div className="space-y-4 font-bold">
+<div className="flex justify-between items-center font-bold"><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">規格價格</label><button onClick={() => setOptions([...options, {label: '', price: 0}])} className="text-xs text-indigo-600 font-black hover:underline uppercase tracking-widest">+ 新增</button></div>
+<div className="space-y-2 max-h-[250px] overflow-y-auto pr-2 scrollbar-hide font-bold">
+{options.map((opt, i) => (<div key={i} className="flex gap-2 font-bold"><input type="text" className="flex-1 p-3 rounded-xl border bg-slate-50 outline-none text-sm font-bold" placeholder="..." value={opt.label} onChange={e => { const n = [...options]; n[i].label = e.target.value; setOptions(n); }} /><input type="number" inputmode="numeric" className="w-24 p-3 rounded-xl border bg-slate-50 outline-none text-sm font-bold" placeholder="..." value={opt.price} onChange={e => { const n = [...options]; n[i].price = parseInt(e.target.value) || 0; setOptions(n); }} /></div>))}
+</div>
+<button disabled={isSaving} onClick={save} className="w-full py-5 bg-indigo-600 text-white rounded-xl font-black shadow-xl">{isSaving ? '處理中...' : '確認儲存'}</button>
+</div>
+</div>
+</Modal>
+);
+};
 
-        const BundleEditor = ({ products, onClose, bundles }) => {
-            const [name, setName] = useState('');
-            const [selectedItems, setSelectedItems] = useState([]);
-            const toggleItem = (p, opt) => {
-                const uid = `${p.id}-${opt.label}`;
-                if (selectedItems.find(i => i.uid === uid)) { setSelectedItems(selectedItems.filter(i => i.uid !== uid)); }
-                else { setSelectedItems([...selectedItems, { uid, id: p.id, label: opt.label, name: p.name }]); }
-            };
-            const save = async () => { if (!name || selectedItems.length === 0) return; await getColl('settings_bundles').add({ name, items: selectedItems, order: bundles.length }); onClose(); };
-            return (
-                <Modal title="商品套組配置" onClose={onClose} wide={true}>
-                    <div className="space-y-6 font-bold font-sans">
-                        <div><label className="text-xs font-black text-slate-400 uppercase">套組名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none" value={name} onChange={e => setName(e.target.value)} /></div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 border p-4 rounded-xl bg-slate-50">
-                                {products.map(p => (
-                                    <div key={p.id} className="mb-4">
-                                        <div className="text-xs font-black text-slate-500 mb-1">{p.name}</div>
-                                        <div className="flex flex-wrap gap-1">
-                                            {p.options.map((opt, i) => {
-                                                const isActive = selectedItems.find(si => si.uid === `${p.id}-${opt.label}`);
-                                                return (<button key={i} onClick={() => toggleItem(p, opt)} className={`px-2 py-1 text-[9px] border rounded-lg ${isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400'}`}>{opt.label}</button>);
-                                            })}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="space-y-2 border p-4 rounded-xl bg-indigo-50/20">
-                                <label className="text-xs font-black text-indigo-400 uppercase">已選內容 ({selectedItems.length})</label>
-                                {selectedItems.map((si, i) => (<div key={i} className="flex justify-between items-center text-[10px] bg-white p-2 rounded-lg border"><span>{si.name} ({si.label})</span><button onClick={() => setSelectedItems(selectedItems.filter(x => x.uid !== si.uid))} className="text-rose-400"><Icons.Trash /></button></div>))}
-                            </div>
-                        </div>
-                        <button onClick={save} className="w-full py-5 bg-emerald-600 text-white rounded-xl font-black shadow-xl">建立並同步套組</button>
-                    </div>
-                </Modal>
-            );
-        };
+const BundleEditor = ({ products, onClose, bundles }) => {
+const [name, setName] = useState('');
+const [selectedItems, setSelectedItems] = useState([]);
+const toggleItem = (p, opt) => {
+const uid = `${p.id}-${opt.label}`;
+if (selectedItems.find(i => i.uid === uid)) { setSelectedItems(selectedItems.filter(i => i.uid !== uid)); }
+else { setSelectedItems([...selectedItems, { uid, id: p.id, label: opt.label, name: p.name }]); }
+};
+const save = async () => { if (!name || selectedItems.length === 0) return; await getColl('settings_bundles').add({ name, items: selectedItems, order: bundles.length }); onClose(); };
+return (
+<Modal title="商品套組配置" onClose={onClose} wide={true}>
+<div className="space-y-6 font-bold font-sans">
+<div><label className="text-xs font-black text-slate-400 uppercase">套組名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none" value={name} onChange={e => setName(e.target.value)} /></div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 border p-4 rounded-xl bg-slate-50">
+{products.map(p => (
+<div key={p.id} className="mb-4">
+<div className="text-xs font-black text-slate-500 mb-1">{p.name}</div>
+<div className="flex flex-wrap gap-1">
+{p.options.map((opt, i) => {
+const isActive = selectedItems.find(si => si.uid === `${p.id}-${opt.label}`);
+return (<button key={i} onClick={() => toggleItem(p, opt)} className={`px-2 py-1 text-[9px] border rounded-lg ${isActive ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400'}`}>{opt.label}</button>);
+})}
+</div>
+</div>
+))}
+</div>
+<div className="space-y-2 border p-4 rounded-xl bg-indigo-50/20">
+<label className="text-xs font-black text-indigo-400 uppercase">已選內容 ({selectedItems.length})</label>
+{selectedItems.map((si, i) => (<div key={i} className="flex justify-between items-center text-[10px] bg-white p-2 rounded-lg border"><span>{si.name} ({si.label})</span><button onClick={() => setSelectedItems(selectedItems.filter(x => x.uid !== si.uid))} className="text-rose-400"><Icons.Trash /></button></div>))}
+</div>
+</div>
+<button onClick={save} className="w-full py-5 bg-emerald-600 text-white rounded-xl font-black shadow-xl">建立並同步套組</button>
+</div>
+</Modal>
+);
+};
 
-        // --- 4. 視圖組件 (定義在 App 之前) ---
+// --- 4. 視圖組件 (定義在 App 之前) ---
 
-        const SalesView = ({ products, inventory, cart, setCart, staffs, discounts, payments, tags, bundles }) => {
-            const [search, setSearch] = useState('');
-            const [barcodeInput, setBarcodeInput] = useState('');
-            const [selectedTags, setSelectedTags] = useState([]);
-            const [activeTab, setActiveTab] = useState('products');
-            const [showCheckout, setShowCheckout] = useState(false);
-            const [priceModal, setPriceModal] = useState(null);
-            const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-            const barcodeInputRef = useRef(null);
-            const scrollRef = useRef(null);
-            const lastScrollY = useRef(0);
-            
-            // 新增：手動開啟的時間戳記，用於解決 iPad 慣性捲動導致的立即關閉問題
-            const lastManualExpand = useRef(0);
+const SalesView = ({ products, inventory, cart, setCart, staffs, discounts, payments, tags, bundles }) => {
+const [search, setSearch] = useState('');
+const [barcodeInput, setBarcodeInput] = useState('');
+const [selectedTags, setSelectedTags] = useState([]);
+const [activeTab, setActiveTab] = useState('products');
+const [showCheckout, setShowCheckout] = useState(false);
+const [priceModal, setPriceModal] = useState(null);
+const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+const barcodeInputRef = useRef(null);
+const scrollRef = useRef(null);
+const lastScrollY = useRef(0);
 
-            const handleScroll = useCallback(() => {
-                if (!scrollRef.current) return;
-                
-                // 鎖定檢查：如果是剛手動開啟 (1秒內)，忽略自動收合邏輯
-                if (Date.now() - lastManualExpand.current < 1000) return;
+// 新增：手動開啟的時間戳記，用於解決 iPad 慣性捲動導致的立即關閉問題
+const lastManualExpand = useRef(0);
 
-                // 平板/手機不自動收合 (iPad 橫向 1024px，直向 768px)
-                if (window.innerWidth < 1024) return;
-                
-                const currentScrollY = scrollRef.current.scrollTop;
-                if (Math.abs(currentScrollY - lastScrollY.current) > 70) {
-                    setIsSidebarExpanded(false);
-                    lastScrollY.current = currentScrollY;
-                }
-            }, []);
+const handleScroll = useCallback(() => {
+if (!scrollRef.current) return;
 
-            const filtered = useMemo(() => {
-                return products.filter(p => {
-                    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode || '').includes(search);
-                    const matchTags = selectedTags.length === 0 || selectedTags.every(t => p.tags?.includes(t));
-                    return matchSearch && matchTags;
-                });
-            }, [products, search, selectedTags]);
+// 鎖定檢查：如果是剛手動開啟 (1秒內)，忽略自動收合邏輯
+if (Date.now() - lastManualExpand.current < 1000) return;
 
-            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
+// 平板/手機不自動收合 (iPad 橫向 1024px，直向 768px)
+if (window.innerWidth < 1024) return;
 
-            const addToCart = (product, option) => {
-                if ((inventory[product.id] || 0) < 1) return;
-                const cartId = `${product.id}-${option.label}`;
-                setCart(prev => {
-                    const existing = prev.find(item => item.cartId === cartId);
-                    if (existing) return prev.map(item => item.cartId === cartId ? {...item, qty: item.qty + 1} : item);
-                    return [...prev, { ...product, ...option, qty: 1, cartId }];
-                });
-                setPriceModal(null); setBarcodeInput(''); setTimeout(() => barcodeInputRef.current?.focus(), 50);
-            };
+const currentScrollY = scrollRef.current.scrollTop;
+if (Math.abs(currentScrollY - lastScrollY.current) > 70) {
+setIsSidebarExpanded(false);
+lastScrollY.current = currentScrollY;
+}
+}, []);
 
-            const addBundleToCart = (bundle) => {
-                bundle.items.forEach(itemInfo => {
-                    const p = products.find(prod => prod.id === itemInfo.id);
-                    if (p) {
-                        const opt = p.options.find(o => o.label === itemInfo.label) || p.options[0];
-                        addToCart(p, opt);
-                    }
-                });
-            };
+const filtered = useMemo(() => {
+return products.filter(p => {
+const matchSearch = p.name.toLowerCase().includes(search.toLowerCase()) || (p.barcode || '').includes(search);
+const matchTags = selectedTags.length === 0 || selectedTags.every(t => p.tags?.includes(t));
+return matchSearch && matchTags;
+});
+}, [products, search, selectedTags]);
 
-            return (
-                <div className="h-full flex flex-col lg:flex-row overflow-hidden font-sans">
-                    <div className="flex-1 flex flex-col p-4 lg:p-8 space-y-4 overflow-hidden font-sans font-bold">
-                        <header className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="relative"><i className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></i><input type="text" inputmode="search" placeholder="搜尋商品..." className="w-full pl-12 pr-4 py-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm outline-none font-bold" value={search} onChange={e => setSearch(e.target.value)} /></div>
-                            {/* 條碼感應強制英文鍵盤 */}
-                            <div className="relative"><i className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500"><Icons.Barcode /></i><input ref={barcodeInputRef} type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" placeholder="條碼感應(英)..." className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50/30 focus:border-indigo-500 outline-none font-black shadow-inner" value={barcodeInput} onChange={e => setBarcodeInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { const p = products.find(x => x.barcode === barcodeInput.trim()); if (p && (inventory[p.id] || 0) >= 1) p.options?.length === 1 ? addToCart(p, p.options[0]) : setPriceModal(p); setBarcodeInput(''); } }} autoFocus /></div>
-                        </header>
-                        
-                        <div className="flex gap-4 border-b border-slate-200">
-                            <button onClick={() => setActiveTab('products')} className={`pb-2 px-2 text-sm font-black transition-all ${activeTab === 'products' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>單品列表</button>
-                            <button onClick={() => setActiveTab('bundles')} className={`pb-2 px-2 text-sm font-black transition-all ${activeTab === 'bundles' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>組合套組</button>
-                        </div>
+const subtotal = cart.reduce((acc, item) => acc + (item.price * item.qty), 0);
 
-                        <div className="flex-1 overflow-y-auto pb-20 scrollbar-hide" ref={scrollRef} onScroll={handleScroll}>
-                            {activeTab === 'products' ? (
-                                <>
-                                    <div className="flex overflow-x-auto space-x-2 pb-3 scrollbar-hide min-h-[40px] items-center">
-                                        <button onClick={() => setSelectedTags([])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.length === 0 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>全部清除</button>
-                                        {tags.map(t => (<button key={t.id} onClick={() => setSelectedTags(prev => prev.includes(t.name) ? prev.filter(x => x !== t.name) : [...prev, t.name])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.includes(t.name) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>{t.name}</button>))}
-                                    </div>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
-                                        {filtered.map(p => {
-                                            const stock = inventory[p.id] || 0;
-                                            const isOutOfStock = stock < 1;
-                                            return (
-                                                <div key={p.id} onClick={() => !isOutOfStock && (p.options?.length === 1 ? addToCart(p, p.options[0]) : setPriceModal(p))} className={`bg-white p-4 rounded-[2rem] border shadow-sm transition-all cursor-pointer group flex flex-col ${isOutOfStock ? 'opacity-40 grayscale-[0.3]' : 'hover:shadow-md hover:border-indigo-100'}`}>
-                                                    <OptimizedImage src={p.imageUrl} alt={p.name} className="w-full aspect-square rounded-3xl mb-3 shadow-inner" />
-                                                    <div className="flex-1 flex flex-col justify-between">
-                                                        <div><div className="flex justify-between items-start mb-1 font-black text-[9px] text-slate-400 uppercase tracking-tighter"><span>{p.barcode || '無碼'}</span><span className={`${isOutOfStock ? 'text-rose-500' : 'text-indigo-500'}`}>庫存: {stock}</span></div><h4 className="font-black text-sm line-clamp-1">{p.name}</h4></div>
-                                                        <div className="flex justify-between items-end mt-2"><div className="font-black text-xl text-indigo-600">${(p.options?.[0]?.price || 0)}</div>{!isOutOfStock && <div className="bg-slate-100 p-2 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm"><Icons.Plus /></div>}</div>
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                    {bundles.map(b => (
-                                        <div key={b.id} onClick={() => addBundleToCart(b)} className="bg-white p-6 rounded-[2.5rem] border shadow-lg hover:border-indigo-600 transition-all cursor-pointer flex justify-between items-center group">
-                                            <div className="flex gap-4 items-center">
-                                                <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-black"><Icons.Package /></div>
-                                                <div><h4 className="text-base font-black text-slate-700">{b.name}</h4><p className="text-[10px] text-slate-400">共 {b.items?.length || 0} 個品項</p></div>
-                                            </div>
-                                            <span className="text-slate-200 group-hover:text-indigo-600 transition-colors"><Icons.PlusCircle /></span>
-                                        </div>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+const addToCart = (product, option) => {
+if ((inventory[product.id] || 0) < 1) return;
+const cartId = `${product.id}-${option.label}`;
+setCart(prev => {
+const existing = prev.find(item => item.cartId === cartId);
+if (existing) return prev.map(item => item.cartId === cartId ? {...item, qty: item.qty + 1} : item);
+return [...prev, { ...product, ...option, qty: 1, cartId }];
+});
+setPriceModal(null); setBarcodeInput(''); setTimeout(() => barcodeInputRef.current?.focus(), 50);
+};
 
-                    <div onClick={() => { 
-                        if (!isSidebarExpanded) { 
-                            setIsSidebarExpanded(true); 
-                            lastManualExpand.current = Date.now(); // 設置手動開啟鎖定時間
-                        } 
-                    }} className={`bg-white border-l flex flex-col shadow-2xl z-30 font-sans font-bold sidebar-transition overflow-hidden cursor-pointer ${isSidebarExpanded ? 'w-full lg:w-96' : 'w-full h-16 lg:h-auto lg:w-16 items-center justify-center lg:justify-start bg-indigo-50 border-indigo-200'}`}>
-                        {!isSidebarExpanded ? (
-                            <div className="h-full flex lg:flex-col flex-row items-center justify-center py-4 lg:py-10 space-x-4 lg:space-x-0 lg:space-y-4 text-indigo-400">
-                                <Icons.Cart />
-                                <span className="lg:[writing-mode:vertical-lr] tracking-widest text-xs font-black uppercase whitespace-nowrap">展開</span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
-                                    <h2 className="text-xl font-black flex items-center text-slate-700"><span className="mr-2 text-indigo-600"><Icons.Cart /></span>購物車</h2>
-                                    <div className="flex gap-2">
-                                        <button onClick={(e) => { e.stopPropagation(); setCart([]); }} className="text-xs font-bold text-rose-500 hover:underline">清空</button>
-                                        <button onClick={(e) => { e.stopPropagation(); setIsSidebarExpanded(false); }} className="text-slate-300 hover:text-slate-600"><Icons.ChevronRight /></button>
-                                    </div>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
-                                    {cart.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-slate-300 space-y-4 p-8 text-center opacity-40 font-black"><Icons.Cart className="w-16 h-16"/><p>尚未選擇商品</p></div> : 
-                                    cart.map((item) => (
-                                        <div key={item.cartId} className="flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 animate-in slide-in-from-right duration-300 font-sans font-bold">
-                                            <div className="flex-1 font-sans font-bold"><p className="font-black text-slate-700 leading-tight">{item.name}</p><p className="text-[10px] text-slate-400 uppercase">{item.label}</p><p className="text-indigo-600 font-black mt-1">${item.price}</p></div>
-                                            <div className="flex items-center bg-white rounded-xl border p-1 shadow-sm font-sans font-bold">
-                                                <button onClick={(e) => { e.stopPropagation(); if(item.qty > 1) setCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty - 1} : c)); else setCart(prev => prev.filter(c => c.cartId !== item.cartId)); }} className="p-1 text-rose-400"><Icons.MinusCircle /></button>
-                                                <span className="w-8 text-center font-black">{item.qty}</span>
-                                                <button onClick={(e) => { e.stopPropagation(); if(inventory[item.id] > item.qty) setCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty + 1} : c)); }} className="p-1 text-emerald-500"><Icons.PlusCircle /></button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                                <div className="p-6 border-t bg-slate-50 space-y-4 shadow-inner">
-                                    <div className="flex justify-between items-center"><span className="text-slate-500 font-black text-sm uppercase">總額計</span><span className="font-black text-4xl text-slate-800">${subtotal}</span></div>
-                                    <button disabled={cart.length === 0} onClick={(e) => { e.stopPropagation(); setShowCheckout(true); }} className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl flex items-center justify-center space-x-3 transform active:scale-95 font-sans font-bold"><span>確認結帳</span><Icons.ChevronRight /></button>
-                                </div>
-                            </>
-                        )}
-                    </div>
-                    {priceModal && (<Modal title={`規格選擇 - ${priceModal.name}`} onClose={() => setPriceModal(null)}><div className="grid grid-cols-1 gap-3 font-bold">{priceModal.options?.map((opt, i) => (<button key={i} onClick={() => addToCart(priceModal, opt)} className="flex justify-between items-center p-5 bg-slate-50 border rounded-2xl active:scale-[0.98] font-sans font-bold"><span className="text-slate-700 font-black">{opt.label}</span><span className="text-indigo-600 font-black text-xl">${opt.price}</span></button>)) }</div></Modal>)}
-                    {showCheckout && <CheckoutModal cart={cart} subtotal={subtotal} staffs={staffs} discounts={discounts} payments={payments} onClose={() => setShowCheckout(false)} onSuccess={() => { setShowCheckout(false); setCart([]); }} type="SALE" />}
-                </div>
-            );
-        };
+const addBundleToCart = (bundle) => {
+bundle.items.forEach(itemInfo => {
+const p = products.find(prod => prod.id === itemInfo.id);
+if (p) {
+const opt = p.options.find(o => o.label === itemInfo.label) || p.options[0];
+addToCart(p, opt);
+}
+});
+};
 
-        // --- 庫存與進貨 ---
-        const InventoryView = ({ products, inventory, tags, staffs, payments }) => {
-            const [selectedTag, setSelectedTag] = useState('全部');
-            const [adjusting, setAdjusting] = useState(null);
-            const [inboundCart, setInboundCart] = useState([]);
-            const [showInboundCheckout, setShowInboundCheckout] = useState(false);
-            const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
-            const scrollRef = useRef(null);
-            const lastScrollY = useRef(0);
-            const lastManualExpand = useRef(0); // 新增：庫存頁面的鎖定
+return (
+<div className="h-full flex flex-col lg:flex-row overflow-hidden font-sans">
+<div className="flex-1 flex flex-col p-4 lg:p-8 space-y-4 overflow-hidden font-sans font-bold">
+<header className="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div className="relative"><i className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></i><input type="text" inputmode="search" placeholder="搜尋商品..." className="w-full pl-12 pr-4 py-4 rounded-2xl border-none ring-1 ring-slate-200 focus:ring-2 focus:ring-indigo-500 shadow-sm outline-none font-bold" value={search} onChange={e => setSearch(e.target.value)} /></div>
+{/* 條碼感應強制英文鍵盤 */}
+<div className="relative"><i className="absolute left-4 top-1/2 -translate-y-1/2 text-indigo-500"><Icons.Barcode /></i><input ref={barcodeInputRef} type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" placeholder="條碼感應(英)..." className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-indigo-100 bg-indigo-50/30 focus:border-indigo-500 outline-none font-black shadow-inner" value={barcodeInput} onChange={e => setBarcodeInput(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') { const p = products.find(x => x.barcode === barcodeInput.trim()); if (p && (inventory[p.id] || 0) >= 1) p.options?.length === 1 ? addToCart(p, p.options[0]) : setPriceModal(p); setBarcodeInput(''); } }} autoFocus /></div>
+</header>
 
-            const filteredProducts = products.filter(p => selectedTag === '全部' || p.tags?.includes(selectedTag));
+<div className="flex gap-4 border-b border-slate-200">
+<button onClick={() => setActiveTab('products')} className={`pb-2 px-2 text-sm font-black transition-all ${activeTab === 'products' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>單品列表</button>
+<button onClick={() => setActiveTab('bundles')} className={`pb-2 px-2 text-sm font-black transition-all ${activeTab === 'bundles' ? 'border-b-4 border-indigo-600 text-indigo-600' : 'text-slate-400'}`}>組合套組</button>
+</div>
 
-            // 新增：統一的捲動處理函數 (包含鎖定邏輯)
-            const handleScroll = useCallback(() => {
-                if (!scrollRef.current) return;
-                
-                // 鎖定檢查
-                if (Date.now() - lastManualExpand.current < 1000) return;
+<div className="flex-1 overflow-y-auto pb-20 scrollbar-hide" ref={scrollRef} onScroll={handleScroll}>
+{activeTab === 'products' ? (
+<>
+<div className="flex overflow-x-auto space-x-2 pb-3 scrollbar-hide min-h-[40px] items-center">
+<button onClick={() => setSelectedTags([])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.length === 0 ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>全部清除</button>
+{tags.map(t => (<button key={t.id} onClick={() => setSelectedTags(prev => prev.includes(t.name) ? prev.filter(x => x !== t.name) : [...prev, t.name])} className={`px-4 py-1.5 rounded-full transition-all shrink-0 text-[11px] font-black border ${selectedTags.includes(t.name) ? 'bg-indigo-600 text-white border-indigo-600 shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>{t.name}</button>))}
+</div>
+<div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-4">
+{filtered.map(p => {
+const stock = inventory[p.id] || 0;
+const isOutOfStock = stock < 1;
+return (
+<div key={p.id} onClick={() => !isOutOfStock && (p.options?.length === 1 ? addToCart(p, p.options[0]) : setPriceModal(p))} className={`bg-white p-4 rounded-[2rem] border shadow-sm transition-all cursor-pointer group flex flex-col ${isOutOfStock ? 'opacity-40 grayscale-[0.3]' : 'hover:shadow-md hover:border-indigo-100'}`}>
+<OptimizedImage src={p.imageUrl} alt={p.name} className="w-full aspect-square rounded-3xl mb-3 shadow-inner" />
+<div className="flex-1 flex flex-col justify-between">
+<div><div className="flex justify-between items-start mb-1 font-black text-[9px] text-slate-400 uppercase tracking-tighter"><span>{p.barcode || '無碼'}</span><span className={`${isOutOfStock ? 'text-rose-500' : 'text-indigo-500'}`}>庫存: {stock}</span></div><h4 className="font-black text-sm line-clamp-1">{p.name}</h4></div>
+<div className="flex justify-between items-end mt-2"><div className="font-black text-xl text-indigo-600">${(p.options?.[0]?.price || 0)}</div>{!isOutOfStock && <div className="bg-slate-100 p-2 rounded-xl group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-sm"><Icons.Plus /></div>}</div>
+</div>
+</div>
+);
+})}
+</div>
+</>
+) : (
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+{bundles.map(b => (
+<div key={b.id} onClick={() => addBundleToCart(b)} className="bg-white p-6 rounded-[2.5rem] border shadow-lg hover:border-indigo-600 transition-all cursor-pointer flex justify-between items-center group">
+<div className="flex gap-4 items-center">
+<div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center font-black"><Icons.Package /></div>
+<div><h4 className="text-base font-black text-slate-700">{b.name}</h4><p className="text-[10px] text-slate-400">共 {b.items?.length || 0} 個品項</p></div>
+</div>
+<span className="text-slate-200 group-hover:text-indigo-600 transition-colors"><Icons.PlusCircle /></span>
+</div>
+))}
+</div>
+)}
+</div>
+</div>
 
-                // 平板/手機不自動收合
-                if (window.innerWidth < 1024) return;
-                
-                const currentScrollY = scrollRef.current.scrollTop;
-                if (Math.abs(currentScrollY - lastScrollY.current) > 70) {
-                    setIsSidebarExpanded(false);
-                    lastScrollY.current = currentScrollY;
-                }
-            }, []);
+<div onClick={() => { 
+if (!isSidebarExpanded) { 
+setIsSidebarExpanded(true); 
+lastManualExpand.current = Date.now(); // 設置手動開啟鎖定時間
+} 
+}} className={`bg-white border-l flex flex-col shadow-2xl z-30 font-sans font-bold sidebar-transition overflow-hidden cursor-pointer ${isSidebarExpanded ? 'w-full lg:w-96' : 'w-full h-16 lg:h-auto lg:w-16 items-center justify-center lg:justify-start bg-indigo-50 border-indigo-200'}`}>
+{!isSidebarExpanded ? (
+<div className="h-full flex lg:flex-col flex-row items-center justify-center py-4 lg:py-10 space-x-4 lg:space-x-0 lg:space-y-4 text-indigo-400">
+<Icons.Cart />
+<span className="lg:[writing-mode:vertical-lr] tracking-widest text-xs font-black uppercase whitespace-nowrap">展開</span>
+</div>
+) : (
+<>
+<div className="p-6 border-b flex justify-between items-center bg-slate-50/50">
+<h2 className="text-xl font-black flex items-center text-slate-700"><span className="mr-2 text-indigo-600"><Icons.Cart /></span>購物車</h2>
+<div className="flex gap-2">
+<button onClick={(e) => { e.stopPropagation(); setCart([]); }} className="text-xs font-bold text-rose-500 hover:underline">清空</button>
+<button onClick={(e) => { e.stopPropagation(); setIsSidebarExpanded(false); }} className="text-slate-300 hover:text-slate-600"><Icons.ChevronRight /></button>
+</div>
+</div>
+<div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+{cart.length === 0 ? <div className="h-full flex flex-col items-center justify-center text-slate-300 space-y-4 p-8 text-center opacity-40 font-black"><Icons.Cart className="w-16 h-16"/><p>尚未選擇商品</p></div> : 
+cart.map((item) => (
+<div key={item.cartId} className="flex items-center space-x-4 bg-slate-50 p-4 rounded-2xl border border-slate-100 animate-in slide-in-from-right duration-300 font-sans font-bold">
+<div className="flex-1 font-sans font-bold"><p className="font-black text-slate-700 leading-tight">{item.name}</p><p className="text-[10px] text-slate-400 uppercase">{item.label}</p><p className="text-indigo-600 font-black mt-1">${item.price}</p></div>
+<div className="flex items-center bg-white rounded-xl border p-1 shadow-sm font-sans font-bold">
+<button onClick={(e) => { e.stopPropagation(); if(item.qty > 1) setCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty - 1} : c)); else setCart(prev => prev.filter(c => c.cartId !== item.cartId)); }} className="p-1 text-rose-400"><Icons.MinusCircle /></button>
+<span className="w-8 text-center font-black">{item.qty}</span>
+<button onClick={(e) => { e.stopPropagation(); if(inventory[item.id] > item.qty) setCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty + 1} : c)); }} className="p-1 text-emerald-500"><Icons.PlusCircle /></button>
+</div>
+</div>
+))}
+</div>
+<div className="p-6 border-t bg-slate-50 space-y-4 shadow-inner">
+<div className="flex justify-between items-center"><span className="text-slate-500 font-black text-sm uppercase">總額計</span><span className="font-black text-4xl text-slate-800">${subtotal}</span></div>
+<button disabled={cart.length === 0} onClick={(e) => { e.stopPropagation(); setShowCheckout(true); }} className="w-full bg-indigo-600 text-white py-5 rounded-2xl font-black text-xl shadow-xl flex items-center justify-center space-x-3 transform active:scale-95 font-sans font-bold"><span>確認結帳</span><Icons.ChevronRight /></button>
+</div>
+</>
+)}
+</div>
+{priceModal && (<Modal title={`規格選擇 - ${priceModal.name}`} onClose={() => setPriceModal(null)}><div className="grid grid-cols-1 gap-3 font-bold">{priceModal.options?.map((opt, i) => (<button key={i} onClick={() => addToCart(priceModal, opt)} className="flex justify-between items-center p-5 bg-slate-50 border rounded-2xl active:scale-[0.98] font-sans font-bold"><span className="text-slate-700 font-black">{opt.label}</span><span className="text-indigo-600 font-black text-xl">${opt.price}</span></button>)) }</div></Modal>)}
+{showCheckout && <CheckoutModal cart={cart} subtotal={subtotal} staffs={staffs} discounts={discounts} payments={payments} onClose={() => setShowCheckout(false)} onSuccess={() => { setShowCheckout(false); setCart([]); }} type="SALE" />}
+</div>
+);
+};
 
-            const handleQuickAdjust = async (product, type, value) => {
-                const num = parseInt(value); if (isNaN(num)) return;
-                try {
-                    const invRef = getColl('inventory').doc(product.id);
-                    if (type === 'SET') await invRef.set({ count: num }, { merge: true });
-                    else if (type === 'IN') await invRef.set({ count: firebase.firestore.FieldValue.increment(num) }, { merge: true });
-                    setAdjusting(null);
-                } catch (e) { console.error("調整失敗:", e); }
-            };
+// --- 庫存與進貨 ---
+const InventoryView = ({ products, inventory, tags, staffs, payments }) => {
+const [selectedTag, setSelectedTag] = useState('全部');
+const [adjusting, setAdjusting] = useState(null);
+const [inboundCart, setInboundCart] = useState([]);
+const [showInboundCheckout, setShowInboundCheckout] = useState(false);
+const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+const scrollRef = useRef(null);
+const lastScrollY = useRef(0);
+const lastManualExpand = useRef(0); // 新增：庫存頁面的鎖定
 
-            const addToInbound = (product, option) => {
-                const cartId = `${product.id}-${option.label}`;
-                setInboundCart(prev => {
-                    const existing = prev.find(item => item.cartId === cartId);
-                    if (existing) return prev.map(item => item.cartId === cartId ? {...item, qty: item.qty + 1} : item);
-                    return [...prev, { ...product, ...option, qty: 1, cartId }];
-                });
-            };
+const filteredProducts = products.filter(p => selectedTag === '全部' || p.tags?.includes(selectedTag));
 
-            return (
-                <div className="h-full flex flex-col lg:flex-row overflow-hidden font-sans font-bold">
-                    <div className="flex-1 p-4 lg:p-8 space-y-6 overflow-hidden flex flex-col font-sans font-bold">
-                        <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-sans font-bold">
-                            <h2 className="text-2xl font-black text-slate-800 tracking-tight font-sans font-bold">庫存與批次入庫管理</h2>
-                            {/* 優化後的按鈕風格下拉選單 */}
-                            <select className="px-4 py-2 rounded-xl border bg-white outline-none font-bold text-slate-600 text-sm shadow-sm cursor-pointer hover:border-indigo-300 transition-colors" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}><option value="全部">全部顯示</option>{tags.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}</select>
-                        </header>
-                        <div className="flex-1 overflow-y-auto pb-20 scrollbar-hide font-sans" ref={scrollRef} onScroll={handleScroll}>
-                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                                {filteredProducts.map(p => (
-                                    <div key={p.id} className="bg-white p-5 rounded-[2rem] border shadow-sm font-sans font-bold">
-                                        <div className="flex justify-between items-start mb-4">
-                                            <div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <OptimizedImage src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
-                                            <span className={`px-4 py-2 rounded-full text-xs font-black shadow-sm ${inventory[p.id] <= 5 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>{inventory[p.id] || 0}</span>
-                                        </div>
-                                        <div className="grid grid-cols-2 gap-2 mb-3">
-                                            <button onClick={() => setAdjusting({product: p, type: 'IN'})} className="bg-slate-50 text-slate-600 py-3 rounded-2xl text-[10px] font-black hover:bg-white transition-all border">快速進貨</button>
-                                            <button onClick={() => setAdjusting({product: p, type: 'SET'})} className="bg-slate-50 text-slate-600 py-3 rounded-2xl text-[10px] font-black hover:bg-white transition-all border">盤點修正</button>
-                                        </div>
-                                        <button onClick={() => (p.options?.length === 1) ? addToInbound(p, p.options[0]) : setAdjusting({product: p, type: 'SELECT_INBOUND'})} className="w-full bg-emerald-50 text-emerald-600 py-3 rounded-2xl text-[10px] font-black hover:bg-emerald-100 flex items-center justify-center gap-2 transition-all border border-emerald-100 uppercase tracking-widest font-sans font-bold"><span className="mr-1"><Icons.Plus /></span>加入進貨單</button>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div 
-                        onClick={() => {
-                            if (!isSidebarExpanded) {
-                                setIsSidebarExpanded(true);
-                                lastManualExpand.current = Date.now(); // 設置手動開啟鎖定時間
-                            }
-                        }}
-                        className={`bg-white border-l flex flex-col shadow-2xl z-30 font-sans font-bold sidebar-transition overflow-hidden cursor-pointer ${isSidebarExpanded ? 'w-full lg:w-96' : 'w-full h-16 lg:h-auto lg:w-16 items-center justify-center lg:justify-start bg-emerald-50 border-emerald-200'}`}
-                    >
-                        {!isSidebarExpanded ? (
-                            <div className="h-full flex lg:flex-col flex-row items-center justify-center py-4 lg:py-10 space-x-4 lg:space-x-0 lg:space-y-4 text-emerald-400">
-                                <Icons.Truck />
-                                <span className="lg:[writing-mode:vertical-lr] tracking-widest text-xs font-black uppercase whitespace-nowrap">展開</span>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="p-6 border-b flex justify-between items-center bg-emerald-50/20 text-emerald-700">
-                                    <h2 className="text-xl flex items-center font-black"><span className="mr-2"><Icons.Truck /></span>進貨單</h2>
-                                    <div className="flex gap-2">
-                                        <button onClick={(e) => { e.stopPropagation(); setInboundCart([]); }} className="text-[10px] text-rose-500 font-black">清空</button>
-                                        <button onClick={(e) => { e.stopPropagation(); setIsSidebarExpanded(false); }} className="text-slate-300 hover:text-slate-600"><Icons.ChevronRight /></button>
-                                    </div>
-                                </div>
-                                <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
-                                    {inboundCart.map((item) => (
-                                        <div key={item.cartId} className="flex items-center space-x-4 bg-emerald-50/10 p-4 rounded-3xl border border-emerald-50 font-sans font-bold font-sans">
-                                            <div className="flex-1 font-sans font-bold"><p className="font-black text-slate-700 leading-none mb-1 text-sm">{item.name}</p><p className="text-[10px] text-slate-400 uppercase font-sans font-bold">{item.label}</p></div>
-                                            <div className="flex items-center bg-white rounded-xl border p-1 shadow-sm font-sans font-bold font-sans font-bold">
-                                                <button onClick={(e) => { e.stopPropagation(); if(item.qty > 1) setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty - 1} : c)); else setInboundCart(prev => prev.filter(c => c.cartId !== item.cartId)); }} className="p-1 text-rose-400 active:scale-75 transition-transform font-sans font-bold"><Icons.MinusCircle /></button>
-                                                <input type="number" inputmode="numeric" className="w-10 text-center font-black text-sm bg-transparent outline-none border-none text-slate-700" value={item.qty} onChange={(e) => {
-                                                    const val = parseInt(e.target.value);
-                                                    setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: isNaN(val) ? 1 : Math.max(1, val)} : c));
-                                                }} onFocus={(e) => e.target.select()} />
-                                                <button onClick={(e) => { e.stopPropagation(); setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty + 1} : c)); }} className="p-1 text-emerald-500 active:scale-75 transition-transform font-sans font-bold"><Icons.PlusCircle /></button>
-                                            </div>
-                                        </div>
-                                    )) }
-                                </div>
-                                <div className="p-6 border-t bg-slate-50 shadow-inner font-sans font-bold"><button disabled={inboundCart.length === 0} onClick={(e) => { e.stopPropagation(); setShowInboundCheckout(true); }} className="w-full bg-emerald-600 text-white py-5 rounded-[2rem] font-black text-xl shadow-xl flex items-center justify-center space-x-3 transform active:scale-95 uppercase"><span>確認入庫</span><Icons.CheckCircle /></button></div>
-                            </>
-                        )}
-                    </div>
-                    {adjusting && adjusting.type !== 'SELECT_INBOUND' && (
-                        <Modal title={`${adjusting.type === 'IN' ? '快速進貨' : '盤點校正'} - ${adjusting.product.name}`} onClose={() => setAdjusting(null)}>
-                            <div className="space-y-6 text-center font-sans font-bold">
-                                <div className="p-4 bg-slate-50 rounded-2xl border text-xs font-black text-slate-400 uppercase tracking-widest font-sans font-bold">當前庫存量: {inventory[adjusting.product.id] || 0}</div>
-                                <input type="number" inputmode="numeric" autoFocus placeholder="..." className="w-full p-6 rounded-3xl bg-slate-100 text-center text-6xl font-black outline-none border-4 border-indigo-200 shadow-inner focus:border-indigo-500 transition-colors font-sans font-bold" onKeyDown={e => e.key === 'Enter' && handleQuickAdjust(adjusting.product, adjusting.type, e.target.value)} />
-                                <button onClick={e => handleQuickAdjust(adjusting.product, adjusting.type, e.currentTarget.previousSibling.value)} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-700 font-sans font-bold">完成調整</button>
-                            </div>
-                        </Modal>
-                    )}
-                    {adjusting?.type === 'SELECT_INBOUND' && (
-                        <Modal title={`進貨規格選擇 - ${adjusting.product.name}`} onClose={() => setAdjusting(null)}>
-                            <div className="grid grid-cols-1 gap-3 font-bold font-sans font-bold">{adjusting.product.options?.map((opt, i) => (<button key={i} onClick={() => { addToInbound(adjusting.product, opt); }} className="p-5 bg-slate-50 rounded-2xl text-left hover:bg-emerald-50 transition-colors flex justify-between shadow-sm border active:scale-[0.98] font-sans font-bold font-black"><span className="text-slate-700 font-black">{opt.label}</span><span className="text-emerald-600 font-black text-xl">${opt.price}</span></button>)) }</div>
-                        </Modal>
-                    )}
-                    {showInboundCheckout && (<CheckoutModal cart={inboundCart} subtotal={0} staffs={staffs} payments={payments} onClose={() => setShowInboundCheckout(false)} onSuccess={() => { setShowInboundCheckout(false); setInboundCart([]); }} type="PURCHASE" />)}
-                </div>
-            );
-        };
+// 新增：統一的捲動處理函數 (包含鎖定邏輯)
+const handleScroll = useCallback(() => {
+if (!scrollRef.current) return;
 
-        // --- 歷史報表 ---
-        const HistoryView = ({ staffs, payments, discounts }) => {
-            const [orders, setOrders] = useState([]);
-            const [search, setSearch] = useState('');
-            const [startDate, setStartDate] = useState(toLocalYMD(new Date()));
-            const [endDate, setEndDate] = useState(toLocalYMD(new Date()));
-            const [editOrder, setEditOrder] = useState(null);
-            const [confirmDelete, setConfirmDelete] = useState(null);
+// 鎖定檢查
+if (Date.now() - lastManualExpand.current < 1000) return;
 
-            // 修改：依照日期區間讀取 (Cost Optimization)
-            const fetchData = async () => {
-                const start = new Date(startDate); start.setHours(0,0,0,0);
-                const end = new Date(endDate); end.setHours(23,59,59,999);
+// 平板/手機不自動收合
+if (window.innerWidth < 1024) return;
 
-                const snap = await getColl('transactions')
-                    .where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(start))
-                    .where('timestamp', '<=', firebase.firestore.Timestamp.fromDate(end))
-                    .orderBy('timestamp', 'desc')
-                    .get();
+const currentScrollY = scrollRef.current.scrollTop;
+if (Math.abs(currentScrollY - lastScrollY.current) > 70) {
+setIsSidebarExpanded(false);
+lastScrollY.current = currentScrollY;
+}
+}, []);
 
-                setOrders(snap.docs.map(doc => ({id: doc.id, ...doc.data()})));
-            };
+const handleQuickAdjust = async (product, type, value) => {
+const num = parseInt(value); if (isNaN(num)) return;
+try {
+const invRef = getColl('inventory').doc(product.id);
+if (type === 'SET') await invRef.set({ count: num }, { merge: true });
+else if (type === 'IN') await invRef.set({ count: firebase.firestore.FieldValue.increment(num) }, { merge: true });
+setAdjusting(null);
+} catch (e) { console.error("調整失敗:", e); }
+};
 
-            // 監聽日期變動，自動重新抓取
-            useEffect(() => { fetchData(); }, [startDate, endDate]);
+const addToInbound = (product, option) => {
+const cartId = `${product.id}-${option.label}`;
+setInboundCart(prev => {
+const existing = prev.find(item => item.cartId === cartId);
+if (existing) return prev.map(item => item.cartId === cartId ? {...item, qty: item.qty + 1} : item);
+return [...prev, { ...product, ...option, qty: 1, cartId }];
+});
+};
 
-            // 修改狀態函數 (Optimistic Update)
-            const toggleStatus = async (id, field, val) => {
-                // UI 先更新
-                setOrders(prev => prev.map(o => o.id === id ? {...o, [field]: val} : o));
-                // 背景更新資料庫
-                try {
-                    await getColl('transactions').doc(id).update({ [field]: val });
-                } catch(e) { console.error('Status Update Failed', e); fetchData(); } // 失敗則還原
-            };
+return (
+<div className="h-full flex flex-col lg:flex-row overflow-hidden font-sans font-bold">
+<div className="flex-1 p-4 lg:p-8 space-y-6 overflow-hidden flex flex-col font-sans font-bold">
+<header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 font-sans font-bold">
+<h2 className="text-2xl font-black text-slate-800 tracking-tight font-sans font-bold">庫存與批次入庫管理</h2>
+{/* 優化後的按鈕風格下拉選單 */}
+<select className="px-4 py-2 rounded-xl border bg-white outline-none font-bold text-slate-600 text-sm shadow-sm cursor-pointer hover:border-indigo-300 transition-colors" value={selectedTag} onChange={e => setSelectedTag(e.target.value)}><option value="全部">全部顯示</option>{tags.map(t => <option key={t.id} value={t.name}>{t.name}</option>)}</select>
+</header>
+<div className="flex-1 overflow-y-auto pb-20 scrollbar-hide font-sans" ref={scrollRef} onScroll={handleScroll}>
+<div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+{filteredProducts.map(p => (
+<div key={p.id} className="bg-white p-5 rounded-[2rem] border shadow-sm font-sans font-bold">
+<div className="flex justify-between items-start mb-4">
+<div className="flex gap-4"><div className="w-14 h-14 rounded-2xl bg-slate-100 overflow-hidden shrink-0 shadow-inner">{p.imageUrl ? <img src={p.imageUrl} className="w-full h-full object-cover" /> : <i className="text-slate-300"><Icons.Image /></i>}</div><div><h4 className="font-black text-slate-700 line-clamp-1 text-sm">{p.name}</h4><p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{p.barcode || '-'}</p></div></div>
+<span className={`px-4 py-2 rounded-full text-xs font-black shadow-sm ${inventory[p.id] <= 5 ? 'bg-rose-50 text-rose-500' : 'bg-emerald-50 text-emerald-500'}`}>{inventory[p.id] || 0}</span>
+</div>
+<div className="grid grid-cols-2 gap-2 mb-3">
+<button onClick={() => setAdjusting({product: p, type: 'IN'})} className="bg-slate-50 text-slate-600 py-3 rounded-2xl text-[10px] font-black hover:bg-white transition-all border">快速進貨</button>
+<button onClick={() => setAdjusting({product: p, type: 'SET'})} className="bg-slate-50 text-slate-600 py-3 rounded-2xl text-[10px] font-black hover:bg-white transition-all border">盤點修正</button>
+</div>
+<button onClick={() => (p.options?.length === 1) ? addToInbound(p, p.options[0]) : setAdjusting({product: p, type: 'SELECT_INBOUND'})} className="w-full bg-emerald-50 text-emerald-600 py-3 rounded-2xl text-[10px] font-black hover:bg-emerald-100 flex items-center justify-center gap-2 transition-all border border-emerald-100 uppercase tracking-widest font-sans font-bold"><span className="mr-1"><Icons.Plus /></span>加入進貨單</button>
+</div>
+))}
+</div>
+</div>
+</div>
 
-            const filtered = useMemo(() => orders.filter(o => {
-                // 這裡只做關鍵字過濾，日期已在 Server 端過濾
-                return (!search || o.searchText?.includes(search.toLowerCase()));
-            }), [orders, search]);
+<div 
+onClick={() => {
+if (!isSidebarExpanded) {
+setIsSidebarExpanded(true);
+lastManualExpand.current = Date.now(); // 設置手動開啟鎖定時間
+}
+}}
+className={`bg-white border-l flex flex-col shadow-2xl z-30 font-sans font-bold sidebar-transition overflow-hidden cursor-pointer ${isSidebarExpanded ? 'w-full lg:w-96' : 'w-full h-16 lg:h-auto lg:w-16 items-center justify-center lg:justify-start bg-emerald-50 border-emerald-200'}`}
+>
+{!isSidebarExpanded ? (
+<div className="h-full flex lg:flex-col flex-row items-center justify-center py-4 lg:py-10 space-x-4 lg:space-x-0 lg:space-y-4 text-emerald-400">
+<Icons.Truck />
+<span className="lg:[writing-mode:vertical-lr] tracking-widest text-xs font-black uppercase whitespace-nowrap">展開</span>
+</div>
+) : (
+<>
+<div className="p-6 border-b flex justify-between items-center bg-emerald-50/20 text-emerald-700">
+<h2 className="text-xl flex items-center font-black"><span className="mr-2"><Icons.Truck /></span>進貨單</h2>
+<div className="flex gap-2">
+<button onClick={(e) => { e.stopPropagation(); setInboundCart([]); }} className="text-[10px] text-rose-500 font-black">清空</button>
+<button onClick={(e) => { e.stopPropagation(); setIsSidebarExpanded(false); }} className="text-slate-300 hover:text-slate-600"><Icons.ChevronRight /></button>
+</div>
+</div>
+<div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-hide">
+{inboundCart.map((item) => (
+<div key={item.cartId} className="flex items-center space-x-4 bg-emerald-50/10 p-4 rounded-3xl border border-emerald-50 font-sans font-bold font-sans">
+<div className="flex-1 font-sans font-bold"><p className="font-black text-slate-700 leading-none mb-1 text-sm">{item.name}</p><p className="text-[10px] text-slate-400 uppercase font-sans font-bold">{item.label}</p></div>
+<div className="flex items-center bg-white rounded-xl border p-1 shadow-sm font-sans font-bold font-sans font-bold">
+<button onClick={(e) => { e.stopPropagation(); if(item.qty > 1) setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty - 1} : c)); else setInboundCart(prev => prev.filter(c => c.cartId !== item.cartId)); }} className="p-1 text-rose-400 active:scale-75 transition-transform font-sans font-bold"><Icons.MinusCircle /></button>
+<input type="number" inputmode="numeric" className="w-10 text-center font-black text-sm bg-transparent outline-none border-none text-slate-700" value={item.qty} onChange={(e) => {
+const val = parseInt(e.target.value);
+setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: isNaN(val) ? 1 : Math.max(1, val)} : c));
+}} onFocus={(e) => e.target.select()} />
+<button onClick={(e) => { e.stopPropagation(); setInboundCart(prev => prev.map(c => c.cartId === item.cartId ? {...c, qty: c.qty + 1} : c)); }} className="p-1 text-emerald-500 active:scale-75 transition-transform font-sans font-bold"><Icons.PlusCircle /></button>
+</div>
+</div>
+)) }
+</div>
+<div className="p-6 border-t bg-slate-50 shadow-inner font-sans font-bold"><button disabled={inboundCart.length === 0} onClick={(e) => { e.stopPropagation(); setShowInboundCheckout(true); }} className="w-full bg-emerald-600 text-white py-5 rounded-[2rem] font-black text-xl shadow-xl flex items-center justify-center space-x-3 transform active:scale-95 uppercase"><span>確認入庫</span><Icons.CheckCircle /></button></div>
+</>
+)}
+</div>
+{adjusting && adjusting.type !== 'SELECT_INBOUND' && (
+<Modal title={`${adjusting.type === 'IN' ? '快速進貨' : '盤點校正'} - ${adjusting.product.name}`} onClose={() => setAdjusting(null)}>
+<div className="space-y-6 text-center font-sans font-bold">
+<div className="p-4 bg-slate-50 rounded-2xl border text-xs font-black text-slate-400 uppercase tracking-widest font-sans font-bold">當前庫存量: {inventory[adjusting.product.id] || 0}</div>
+<input type="number" inputmode="numeric" autoFocus placeholder="..." className="w-full p-6 rounded-3xl bg-slate-100 text-center text-6xl font-black outline-none border-4 border-indigo-200 shadow-inner focus:border-indigo-500 transition-colors font-sans font-bold" onKeyDown={e => e.key === 'Enter' && handleQuickAdjust(adjusting.product, adjusting.type, e.target.value)} />
+<button onClick={e => handleQuickAdjust(adjusting.product, adjusting.type, e.currentTarget.previousSibling.value)} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-700 font-sans font-bold">完成調整</button>
+</div>
+</Modal>
+)}
+{adjusting?.type === 'SELECT_INBOUND' && (
+<Modal title={`進貨規格選擇 - ${adjusting.product.name}`} onClose={() => setAdjusting(null)}>
+<div className="grid grid-cols-1 gap-3 font-bold font-sans font-bold">{adjusting.product.options?.map((opt, i) => (<button key={i} onClick={() => { addToInbound(adjusting.product, opt); }} className="p-5 bg-slate-50 rounded-2xl text-left hover:bg-emerald-50 transition-colors flex justify-between shadow-sm border active:scale-[0.98] font-sans font-bold font-black"><span className="text-slate-700 font-black">{opt.label}</span><span className="text-emerald-600 font-black text-xl">${opt.price}</span></button>)) }</div>
+</Modal>
+)}
+{showInboundCheckout && (<CheckoutModal cart={inboundCart} subtotal={0} staffs={staffs} payments={payments} onClose={() => setShowInboundCheckout(false)} onSuccess={() => { setShowInboundCheckout(false); setInboundCart([]); }} type="PURCHASE" />)}
+</div>
+);
+};
 
-            const calcEditFinal = (o) => {
-                if (o.type !== 'SALE') return 0;
-                let sub = o.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
-                let selected = discounts.filter(d => (o.discountIds || []).includes(d.id));
-                let price = sub;
-                price -= selected.filter(d => d.type === 'amount').reduce((acc, d) => acc + (d.value || 0), 0);
-                price = Math.round(price * (1 - selected.filter(d => d.type === 'percent').reduce((acc, d) => acc + ((d.value || 0) / 100), 0)));
-                return Math.max(0, price);
-            };
+// --- 歷史報表 ---
+const HistoryView = ({ staffs, payments, discounts }) => {
+const [orders, setOrders] = useState([]);
+const [search, setSearch] = useState('');
+const [startDate, setStartDate] = useState(toLocalYMD(new Date()));
+const [endDate, setEndDate] = useState(toLocalYMD(new Date()));
+const [editOrder, setEditOrder] = useState(null);
+const [confirmDelete, setConfirmDelete] = useState(null);
 
-            const handleSaveEdit = async () => {
-                const { id, ...data } = editOrder;
-                
-                // 1. 還原舊庫存 (防止資料流失的關鍵)
-                const oldDoc = await getColl('transactions').doc(id).get();
-                if(oldDoc.exists) {
-                    const oldData = oldDoc.data();
-                    const batch = db.batch();
-                    oldData.items.forEach(item => {
-                        const invRef = getColl('inventory').doc(item.id);
-                        const change = oldData.type === 'SALE' ? item.qty : -item.qty; // 逆向操作
-                        batch.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
-                    });
-                    await batch.commit();
-                }
+// 修改：依照日期區間讀取 (Cost Optimization)
+const fetchData = async () => {
+const start = new Date(startDate); start.setHours(0,0,0,0);
+const end = new Date(endDate); end.setHours(23,59,59,999);
 
-                // 2. 套用新庫存
-                const batchNew = db.batch();
-                data.items.forEach(item => {
-                    const invRef = getColl('inventory').doc(item.id);
-                    const change = data.type === 'SALE' ? -item.qty : item.qty; // 正向操作
-                    batchNew.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
-                });
-                
-                // 3. 確保時間格式正確
-                if (data.timestamp && !data.timestamp.toDate && data.timestamp.seconds) {
-                    data.timestamp = new firebase.firestore.Timestamp(data.timestamp.seconds, data.timestamp.nanoseconds);
-                } else if (typeof data.timestamp === 'string' || data.timestamp instanceof Date) {
-                    data.timestamp = firebase.firestore.Timestamp.fromDate(new Date(data.timestamp));
-                }
+const snap = await getColl('transactions')
+.where('timestamp', '>=', firebase.firestore.Timestamp.fromDate(start))
+.where('timestamp', '<=', firebase.firestore.Timestamp.fromDate(end))
+.orderBy('timestamp', 'desc')
+.get();
 
-                // 更新搜尋關鍵字
-                let searchBase = `${data.orderNo} ${data.staff} ${data.notes || ''} ${data.items.map(i => i.name).join(' ')}`;
-                
-                if (data.type === 'SALE') {
-                    data.subtotal = data.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
-                    data.finalPrice = calcEditFinal(editOrder);
-                    data.discountName = discounts.filter(d => (editOrder.discountIds || []).includes(d.id)).map(d => d.name).join(', ') || '無';
-                    searchBase += ` ${data.payment} 銷售`;
-                    if (data.invoice) searchBase += ` ${data.invoice.carrierNum || ''} ${data.invoice.taxId || ''}`;
-                } else {
-                     searchBase += ` 進貨`;
-                }
-                data.searchText = searchBase.toLowerCase();
+setOrders(snap.docs.map(doc => ({id: doc.id, ...doc.data()})));
+};
 
-                await getColl('transactions').doc(id).set(data, { merge: true });
-                setEditOrder(null); fetchData();
-            };
+// 監聽日期變動，自動重新抓取
+useEffect(() => { fetchData(); }, [startDate, endDate]);
 
-            const handleDelete = async () => {
-                await getColl('transactions').doc(confirmDelete.id).delete();
-                setConfirmDelete(null); fetchData();
-            };
+// 修改狀態函數 (Optimistic Update)
+const toggleStatus = async (id, field, val) => {
+// UI 先更新
+setOrders(prev => prev.map(o => o.id === id ? {...o, [field]: val} : o));
+// 背景更新資料庫
+try {
+await getColl('transactions').doc(id).update({ [field]: val });
+} catch(e) { console.error('Status Update Failed', e); fetchData(); } // 失敗則還原
+};
 
-            const exportToXlsx = () => {
-                const data = [];
+const filtered = useMemo(() => orders.filter(o => {
+// 這裡只做關鍵字過濾，日期已在 Server 端過濾
+return (!search || o.searchText?.includes(search.toLowerCase()));
+}), [orders, search]);
+
+const calcEditFinal = (o) => {
+if (o.type !== 'SALE') return 0;
+let sub = o.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
+let selected = discounts.filter(d => (o.discountIds || []).includes(d.id));
+let price = sub;
+price -= selected.filter(d => d.type === 'amount').reduce((acc, d) => acc + (d.value || 0), 0);
+price = Math.round(price * (1 - selected.filter(d => d.type === 'percent').reduce((acc, d) => acc + ((d.value || 0) / 100), 0)));
+return Math.max(0, price);
+};
+
+const handleSaveEdit = async () => {
+const { id, ...data } = editOrder;
+
+// 1. 還原舊庫存 (防止資料流失的關鍵)
+const oldDoc = await getColl('transactions').doc(id).get();
+if(oldDoc.exists) {
+const oldData = oldDoc.data();
+const batch = db.batch();
+oldData.items.forEach(item => {
+const invRef = getColl('inventory').doc(item.id);
+const change = oldData.type === 'SALE' ? item.qty : -item.qty; // 逆向操作
+batch.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
+});
+await batch.commit();
+}
+
+// 2. 套用新庫存
+const batchNew = db.batch();
+data.items.forEach(item => {
+const invRef = getColl('inventory').doc(item.id);
+const change = data.type === 'SALE' ? -item.qty : item.qty; // 正向操作
+batchNew.update(invRef, { count: firebase.firestore.FieldValue.increment(change) });
+});
+
+// 3. 確保時間格式正確
+if (data.timestamp && !data.timestamp.toDate && data.timestamp.seconds) {
+data.timestamp = new firebase.firestore.Timestamp(data.timestamp.seconds, data.timestamp.nanoseconds);
+} else if (typeof data.timestamp === 'string' || data.timestamp instanceof Date) {
+data.timestamp = firebase.firestore.Timestamp.fromDate(new Date(data.timestamp));
+}
+
+// 更新搜尋關鍵字
+let searchBase = `${data.orderNo} ${data.staff} ${data.notes || ''} ${data.items.map(i => i.name).join(' ')}`;
+
+if (data.type === 'SALE') {
+data.subtotal = data.items.reduce((acc, it) => acc + (it.price * it.qty), 0);
+data.finalPrice = calcEditFinal(editOrder);
+data.discountName = discounts.filter(d => (editOrder.discountIds || []).includes(d.id)).map(d => d.name).join(', ') || '無';
+searchBase += ` ${data.payment} 銷售`;
+if (data.invoice) searchBase += ` ${data.invoice.carrierNum || ''} ${data.invoice.taxId || ''}`;
+} else {
+searchBase += ` 進貨`;
+}
+data.searchText = searchBase.toLowerCase();
+
+await getColl('transactions').doc(id).set(data, { merge: true });
+setEditOrder(null); fetchData();
+};
+
+const handleDelete = async () => {
+await getColl('transactions').doc(confirmDelete.id).delete();
+setConfirmDelete(null); fetchData();
+};
+
+const exportToXlsx = () => {
+const data = [];
                 const getInvoiceTypeStr = (inv) => {
                     if (!inv) return '-';
                     if (inv.type === 'company') return '公司';
@@ -790,11 +769,15 @@
                     return '電子'; // Covers mobile, cert, ezpay, donation
                 };
 
-                filtered.forEach(o => {
-                    const isPurchase = o.type === "PURCHASE";
-                    o.items.forEach(item => {
+filtered.forEach(o => {
+const isPurchase = o.type === "PURCHASE";
+o.items.forEach(item => {
+                        // 新增狀態欄位 (發票/藍新) 已被排除，維持原樣
                         // 調整順序，將發票欄位移至最後，並轉換發票類型文字
-                        data.push({ 
+data.push({ 
+                            '發票類型': o.invoice?.type || '-',
+                            '載具/統編': o.invoice?.type === 'company' ? o.invoice.taxId : (o.invoice?.carrierNum || '-'),
+                            '單號': o.orderNo, '類型': o.type, '日期': getSafeDate(o.timestamp).toISOString().split('T')[0], '品項': `${item.name} (${item.label})`, '數量': item.qty, '金額/單價': isPurchase ? "-" : item.price, '實收總額': isPurchase ? "-" : o.finalPrice, '經手人': o.staff });
                             '單號': o.orderNo, 
                             '類型': o.type, 
                             '日期': getSafeDate(o.timestamp).toISOString().split('T')[0], 
@@ -806,324 +789,278 @@
                             '發票種類': getInvoiceTypeStr(o.invoice),
                             '載具/統編': o.invoice?.type === 'company' ? o.invoice.taxId : (o.invoice?.carrierNum || '-')
                         });
-                    });
-                });
-                const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "報表"); XLSX.writeFile(wb, `營運紀錄_${startDate}.xlsx`);
-            };
+});
+});
+const ws = XLSX.utils.json_to_sheet(data); const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "報表"); XLSX.writeFile(wb, `營運紀錄_${startDate}.xlsx`);
+};
 
-            return (
-                <div className="p-4 lg:p-8 space-y-6 pb-20 scrollbar-hide overflow-y-auto h-full font-sans font-bold">
-                    <header className="flex flex-col md:flex-row md:items-center justify-between gap-4"><h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">歷史交易與數據中心</h2><div className="flex gap-2"><div className="flex bg-white border rounded-xl shadow-sm overflow-hidden font-sans font-bold"><input type="date" className="p-2 text-xs font-bold outline-none font-sans" value={startDate} onChange={e => setStartDate(e.target.value)} /><input type="date" className="p-2 text-xs font-bold border-l outline-none font-sans" value={endDate} onChange={e => setEndDate(e.target.value)} /></div><button onClick={exportToXlsx} className="bg-emerald-600 text-white px-5 py-3 rounded-xl font-black text-xs shadow-lg hover:bg-emerald-700 transition-all transform active:scale-95 font-sans font-bold"><Icons.FileXls /></button></div></header>
-                    <input className="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 font-bold outline-none bg-white shadow-sm font-sans" placeholder="搜尋人員、單號或內容..." value={search} onChange={e => setSearch(e.target.value)} />
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {filtered.map(o => (
-                            <div key={o.id} className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 relative overflow-hidden group hover:border-indigo-100 transition-all font-sans font-bold animate-in fade-in duration-500">
-                                <div className={`absolute top-0 right-0 px-4 py-1 text-[9px] font-black uppercase text-white shadow-md ${o.type === 'PURCHASE' ? 'bg-emerald-500' : 'bg-indigo-500'} font-sans font-bold font-black`}>{o.type}</div>
-                                <div className="flex justify-between items-start border-b border-slate-50 pb-3 font-bold">
-                                    <div><p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">{o.orderNo}</p><h4 className="font-black text-slate-700 leading-none text-lg">{getSafeDate(o.timestamp).toISOString().split('T')[0]}</h4></div>
-                                    <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all"><button onClick={() => setEditOrder(JSON.parse(JSON.stringify(o)))} className="p-2 text-indigo-500 hover:bg-slate-100 rounded-xl"><Icons.Edit /></button><button onClick={() => setConfirmDelete(o)} className="p-2 text-rose-500 hover:bg-slate-100 rounded-xl"><Icons.Trash /></button></div>
-                                </div>
-                                <div className="space-y-1 font-sans font-bold">{o.items.map((it, i) => (<div key={i} className="flex justify-between text-xs font-bold font-sans"><span>{it.name} <span className="opacity-40 uppercase text-[8px]">({it.label})</span> x{it.qty}</span>{o.type === 'SALE' && <span className="text-slate-800 font-black">${it.price * it.qty}</span>}</div>))}</div>
-                                <div className="bg-slate-50 p-4 rounded-2xl flex flex-col gap-3 border border-slate-100 shadow-inner font-sans font-bold">
-                                    <div className="flex justify-between items-end">
-                                        <div className="space-y-1 font-black text-[9px] uppercase text-slate-400 font-sans">
-                                            <span>經手: {o.staff}</span>
-                                            {/* 新增：顯示發票資訊 */}
-                                            {o.invoice ? (
-                                                <div className="text-indigo-500 mt-1">
-                                                    {o.invoice.type === 'company' ? `統編: ${o.invoice.taxId}` : 
-                                                     o.invoice.type === 'donation' ? `捐贈碼: ${o.invoice.loveCode}` : 
-                                                     o.invoice.carrierType === 'mobile' ? `手機: ${o.invoice.carrierNum}` :
-                                                     o.invoice.carrierType === 'cert' ? `憑證: ${o.invoice.carrierNum}` :
-                                                     o.invoice.carrierType === 'ezpay' ? `會員: ${o.invoice.carrierNum}` : '紙本發票'}
-                                                </div>
-                                            ) : (o.type === 'SALE' && <div className="text-slate-300 mt-1">未登錄發票</div>)}
-                                        </div>
-                                        {o.type === 'SALE' ? <span className="text-2xl text-indigo-600 font-black tracking-tighter leading-none">${o.finalPrice}</span> : <span className="text-xs text-emerald-600 font-black uppercase tracking-widest">已完成入庫</span>}
-                                    </div>
-                                    {/* 新增功能：發票與藍新勾選框 (僅顯示於銷售單) */}
-                                    {o.type === 'SALE' && (
-                                        <div className="flex gap-4 pt-2 border-t border-slate-200 mt-2">
-                                            <label className="flex items-center gap-2 cursor-pointer select-none">
-                                                <input type="checkbox" className="custom-checkbox" checked={o.hasInvoice || false} onChange={() => toggleStatus(o.id, 'hasInvoice', !o.hasInvoice)} />
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${o.hasInvoice ? 'text-indigo-600' : 'text-slate-400'}`}>已開發票</span>
-                                            </label>
-                                            <label className="flex items-center gap-2 cursor-pointer select-none">
-                                                <input type="checkbox" className="custom-checkbox" checked={o.hasNeweb || false} onChange={() => toggleStatus(o.id, 'hasNeweb', !o.hasNeweb)} />
-                                                <span className={`text-[10px] font-black uppercase tracking-widest ${o.hasNeweb ? 'text-indigo-600' : 'text-slate-400'}`}>藍新入帳</span>
-                                            </label>
-                                        </div>
-                                    )}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                    {editOrder && (
-                        <Modal title="編輯紀錄數據" onClose={() => setEditOrder(null)}>
-                            <div className="space-y-6 font-bold text-slate-700 font-sans">
-                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={getSafeDate(editOrder.timestamp).toISOString().split('T')[0]} onChange={e => {
-                                    const d = new Date(e.target.value); d.setHours(12); setEditOrder({...editOrder, timestamp: firebase.firestore.Timestamp.fromDate(d)});
-                                }} /></div>
-                                
-                                {/* 補登發票資訊區域 */}
-                                {editOrder.type === 'SALE' && (
-                                    <div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
-                                        <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest flex items-center gap-2 mb-2"><Icons.FileText className="w-4 h-4"/> 發票補登與修改</label>
-                                        <div className="space-y-3">
-                                            <div className="flex gap-2">
-                                                {['personal:個人', 'company:公司', 'donation:捐贈'].map(t => { 
-                                                    const [val, label] = t.split(':'); 
-                                                    const currentType = editOrder.invoice?.type || 'personal';
-                                                    return (<button key={val} onClick={() => setEditOrder({...editOrder, invoice: {...(editOrder.invoice || {}), type: val}})} className={`flex-1 py-2 rounded-lg text-xs font-bold border ${currentType === val ? 'bg-slate-700 text-white' : 'bg-white text-slate-500'}`}>{label}</button>); 
-                                                })}
-                                            </div>
-                                            {(editOrder.invoice?.type === 'company') && (
-                                                <input type="text" placeholder="統編 (8碼)" className="w-full p-2 rounded-lg border text-sm" value={editOrder.invoice?.taxId || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, taxId: e.target.value}})} />
-                                            )}
-                                            {(editOrder.invoice?.type === 'donation') && (
-                                                <input type="text" placeholder="愛心碼" className="w-full p-2 rounded-lg border text-sm" value={editOrder.invoice?.loveCode || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, loveCode: e.target.value}})} />
-                                            )}
-                                            {(!editOrder.invoice?.type || editOrder.invoice?.type === 'personal') && (
-                                                <div className="flex gap-2">
-                                                    <select className="w-1/3 p-2 rounded-lg border text-sm" value={editOrder.invoice?.carrierType || 'print'} onChange={e => setEditOrder({...editOrder, invoice: {...(editOrder.invoice || {}), carrierType: e.target.value}})}>
-                                                        <option value="print">紙本</option><option value="mobile">手機條碼</option><option value="cert">自然人憑證</option>
-                                                    </select>
-                                                    {(editOrder.invoice?.carrierType === 'mobile' || editOrder.invoice?.carrierType === 'cert') && (
-                                                        <input type="text" placeholder="載具號碼" className="w-2/3 p-2 rounded-lg border text-sm" value={editOrder.invoice?.carrierNum || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, carrierNum: e.target.value}})} />
-                                                    )}
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
+return (
+<div className="p-4 lg:p-8 space-y-6 pb-20 scrollbar-hide overflow-y-auto h-full font-sans font-bold">
+<header className="flex flex-col md:flex-row md:items-center justify-between gap-4"><h2 className="text-2xl font-black text-slate-800 tracking-tight uppercase">歷史交易與數據中心</h2><div className="flex gap-2"><div className="flex bg-white border rounded-xl shadow-sm overflow-hidden font-sans font-bold"><input type="date" className="p-2 text-xs font-bold outline-none font-sans" value={startDate} onChange={e => setStartDate(e.target.value)} /><input type="date" className="p-2 text-xs font-bold border-l outline-none font-sans" value={endDate} onChange={e => setEndDate(e.target.value)} /></div><button onClick={exportToXlsx} className="bg-emerald-600 text-white px-5 py-3 rounded-xl font-black text-xs shadow-lg hover:bg-emerald-700 transition-all transform active:scale-95 font-sans font-bold"><Icons.FileXls /></button></div></header>
+<input className="w-full p-4 rounded-2xl border-none ring-1 ring-slate-200 font-bold outline-none bg-white shadow-sm font-sans" placeholder="搜尋人員、單號或內容..." value={search} onChange={e => setSearch(e.target.value)} />
+<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+{filtered.map(o => (
+<div key={o.id} className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 relative overflow-hidden group hover:border-indigo-100 transition-all font-sans font-bold animate-in fade-in duration-500">
+<div className={`absolute top-0 right-0 px-4 py-1 text-[9px] font-black uppercase text-white shadow-md ${o.type === 'PURCHASE' ? 'bg-emerald-500' : 'bg-indigo-500'} font-sans font-bold font-black`}>{o.type}</div>
+<div className="flex justify-between items-start border-b border-slate-50 pb-3 font-bold">
+<div><p className="text-[9px] font-black text-slate-400 mb-1 uppercase tracking-widest">{o.orderNo}</p><h4 className="font-black text-slate-700 leading-none text-lg">{getSafeDate(o.timestamp).toISOString().split('T')[0]}</h4></div>
+<div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-all"><button onClick={() => setEditOrder(JSON.parse(JSON.stringify(o)))} className="p-2 text-indigo-500 hover:bg-slate-100 rounded-xl"><Icons.Edit /></button><button onClick={() => setConfirmDelete(o)} className="p-2 text-rose-500 hover:bg-slate-100 rounded-xl"><Icons.Trash /></button></div>
+</div>
+<div className="space-y-1 font-sans font-bold">{o.items.map((it, i) => (<div key={i} className="flex justify-between text-xs font-bold font-sans"><span>{it.name} <span className="opacity-40 uppercase text-[8px]">({it.label})</span> x{it.qty}</span>{o.type === 'SALE' && <span className="text-slate-800 font-black">${it.price * it.qty}</span>}</div>))}</div>
+<div className="bg-slate-50 p-4 rounded-2xl flex flex-col gap-3 border border-slate-100 shadow-inner font-sans font-bold">
+<div className="flex justify-between items-end">
+<div className="space-y-1 font-black text-[9px] uppercase text-slate-400 font-sans">
+<span>經手: {o.staff}</span>
+{/* 新增：顯示發票資訊 */}
+{o.invoice ? (
+<div className="text-indigo-500 mt-1">
+{o.invoice.type === 'company' ? `統編: ${o.invoice.taxId}` : 
+o.invoice.type === 'donation' ? `捐贈碼: ${o.invoice.loveCode}` : 
+o.invoice.carrierType === 'mobile' ? `手機: ${o.invoice.carrierNum}` :
+o.invoice.carrierType === 'cert' ? `憑證: ${o.invoice.carrierNum}` :
+o.invoice.carrierType === 'ezpay' ? `會員: ${o.invoice.carrierNum}` : '紙本發票'}
+</div>
+) : (o.type === 'SALE' && <div className="text-slate-300 mt-1">未登錄發票</div>)}
+</div>
+{o.type === 'SALE' ? <span className="text-2xl text-indigo-600 font-black tracking-tighter leading-none">${o.finalPrice}</span> : <span className="text-xs text-emerald-600 font-black uppercase tracking-widest">已完成入庫</span>}
+</div>
+{/* 新增功能：發票與藍新勾選框 (僅顯示於銷售單) */}
+{o.type === 'SALE' && (
+<div className="flex gap-4 pt-2 border-t border-slate-200 mt-2">
+<label className="flex items-center gap-2 cursor-pointer select-none">
+<input type="checkbox" className="custom-checkbox" checked={o.hasInvoice || false} onChange={() => toggleStatus(o.id, 'hasInvoice', !o.hasInvoice)} />
+<span className={`text-[10px] font-black uppercase tracking-widest ${o.hasInvoice ? 'text-indigo-600' : 'text-slate-400'}`}>已開發票</span>
+</label>
+<label className="flex items-center gap-2 cursor-pointer select-none">
+<input type="checkbox" className="custom-checkbox" checked={o.hasNeweb || false} onChange={() => toggleStatus(o.id, 'hasNeweb', !o.hasNeweb)} />
+<span className={`text-[10px] font-black uppercase tracking-widest ${o.hasNeweb ? 'text-indigo-600' : 'text-slate-400'}`}>藍新入帳</span>
+</label>
+</div>
+)}
+</div>
+</div>
+))}
+</div>
+{editOrder && (
+<Modal title="編輯紀錄數據" onClose={() => setEditOrder(null)}>
+<div className="space-y-6 font-bold text-slate-700 font-sans">
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">交易日期</label><input type="date" className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={getSafeDate(editOrder.timestamp).toISOString().split('T')[0]} onChange={e => {
+const d = new Date(e.target.value); d.setHours(12); setEditOrder({...editOrder, timestamp: firebase.firestore.Timestamp.fromDate(d)});
+}} /></div>
 
-                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">經手人員</label><select className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.staff} onChange={e => setEditOrder({...editOrder, staff: e.target.value})}>{staffs.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
-                                
-                                {editOrder.type === 'SALE' && (
-                                    <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">付款方式</label>
-                                        <select className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.payment} onChange={e => setEditOrder({...editOrder, payment: e.target.value})}>{payments.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}</select>
-                                    </div>
-                                )}
-                                
-                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">數量調整</label>
-                                    <div className="space-y-2 mt-2 font-sans font-bold">
-                                        {editOrder.items.map((it, idx) => (
-                                            <div key={idx} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl font-sans"><span className="text-xs">{it.name}</span><input type="number" inputmode="numeric" className="w-20 p-2 rounded-lg border text-center font-black" value={it.qty} onChange={e => {
-                                                const newItems = [...editOrder.items]; newItems[idx].qty = Math.max(1, parseInt(e.target.value) || 1); setEditOrder({...editOrder, items: newItems});
-                                            }} /></div>
-                                        ))}
-                                    </div>
-                                </div>
-                                {editOrder.type === 'SALE' && (
-                                    <>
-                                        <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">折扣多選</label>
-                                            <div className="flex flex-wrap gap-2 mt-2 font-sans">
-                                                {discounts.map(d => {
-                                                    const isActive = (editOrder.discountIds || []).includes(d.id);
-                                                    return (<button key={d.id} onClick={() => {
-                                                        const current = editOrder.discountIds || [];
-                                                        const next = isActive ? current.filter(id => id !== d.id) : [...current, d.id];
-                                                        setEditOrder({...editOrder, discountIds: next});
-                                                    }} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isActive ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>{d.name}</button>);
-                                                })}
-                                            </div>
-                                        </div>
-                                        <div className="p-4 bg-indigo-50 rounded-2xl text-center"><p className="text-[10px] text-slate-400 font-black">更新後預估總額</p><span className="text-2xl font-black text-indigo-700">${calcEditFinal(editOrder)}</span></div>
-                                    </>
-                                )}
-                                <div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans font-bold">備註修改</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 font-bold font-sans font-bold" value={editOrder.notes || ''} onChange={e => setEditOrder({...editOrder, notes: e.target.value})} /></div>
-                                <button onClick={handleSaveEdit} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-lg font-sans">確認修改並同步雲端數據</button>
-                            </div>
-                        </Modal>
-                    )}
-                    {confirmDelete && (<ConfirmModal title="徹底刪除紀錄" message="確定要永久移除這筆報表嗎？" onConfirm={handleDelete} onCancel={() => setConfirmDelete(null)} />)}
-                </div>
-            );
-        };
+{/* 補登發票資訊區域 */}
+{editOrder.type === 'SALE' && (
+<div className="p-4 bg-slate-50 rounded-xl border border-slate-200">
+<label className="text-[10px] uppercase font-black text-slate-400 tracking-widest flex items-center gap-2 mb-2"><Icons.FileText className="w-4 h-4"/> 發票補登與修改</label>
+<div className="space-y-3">
+<div className="flex gap-2">
+{['personal:個人', 'company:公司', 'donation:捐贈'].map(t => { 
+const [val, label] = t.split(':'); 
+const currentType = editOrder.invoice?.type || 'personal';
+return (<button key={val} onClick={() => setEditOrder({...editOrder, invoice: {...(editOrder.invoice || {}), type: val}})} className={`flex-1 py-2 rounded-lg text-xs font-bold border ${currentType === val ? 'bg-slate-700 text-white' : 'bg-white text-slate-500'}`}>{label}</button>); 
+})}
+</div>
+                                            {/* 動態欄位顯示 */}
+{(editOrder.invoice?.type === 'company') && (
+<input type="text" placeholder="統編 (8碼)" className="w-full p-2 rounded-lg border text-sm" value={editOrder.invoice?.taxId || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, taxId: e.target.value}})} />
+)}
+{(editOrder.invoice?.type === 'donation') && (
+<input type="text" placeholder="愛心碼" className="w-full p-2 rounded-lg border text-sm" value={editOrder.invoice?.loveCode || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, loveCode: e.target.value}})} />
+)}
+{(!editOrder.invoice?.type || editOrder.invoice?.type === 'personal') && (
+<div className="flex gap-2">
+<select className="w-1/3 p-2 rounded-lg border text-sm" value={editOrder.invoice?.carrierType || 'print'} onChange={e => setEditOrder({...editOrder, invoice: {...(editOrder.invoice || {}), carrierType: e.target.value}})}>
+<option value="print">紙本</option><option value="mobile">手機條碼</option><option value="cert">自然人憑證</option>
+</select>
+{(editOrder.invoice?.carrierType === 'mobile' || editOrder.invoice?.carrierType === 'cert') && (
+<input type="text" placeholder="載具號碼" className="w-2/3 p-2 rounded-lg border text-sm" value={editOrder.invoice?.carrierNum || ''} onChange={e => setEditOrder({...editOrder, invoice: {...editOrder.invoice, carrierNum: e.target.value}})} />
+)}
+</div>
+)}
+</div>
+</div>
+)}
 
-        const SettingsView = ({ staffs, discounts, payments, tags, products, setConfirmState, bundles }) => {
-            const [productModal, setProductModal] = useState({ open: false, item: null });
-            const [editModal, setEditModal] = useState({ open: false, coll: '', item: null });
-            const [bundleModal, setBundleModal] = useState({ open: false, item: null });
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">經手人員</label><select className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.staff} onChange={e => setEditOrder({...editOrder, staff: e.target.value})}>{staffs.map(s => <option key={s.id} value={s.name}>{s.name}</option>)}</select></div>
 
-            const SettingBlock = ({ title, data, coll, icon }) => {
-                const [val, setVal] = useState(''); const [num, setNum] = useState(0); const [type, setType] = useState('amount'); const isDiscount = coll === 'settings_discounts';
-                const add = async () => { if(!val) return; await getColl(coll).add({ name: val, value: isDiscount ? num : null, type: isDiscount ? type : null, order: data.length }); setVal(''); setNum(0); };
-                const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.Percent : icon === 'percent' ? Icons.Percent : Icons.Tag;
+{editOrder.type === 'SALE' && (
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">付款方式</label>
+<select className="w-full p-4 rounded-xl border bg-slate-50 font-bold" value={editOrder.payment} onChange={e => setEditOrder({...editOrder, payment: e.target.value})}>{payments.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}</select>
+</div>
+)}
 
-                return (
-                    <div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 font-sans font-bold h-full flex flex-col font-sans font-bold">
-                        <div className="flex items-center gap-2 mb-2 text-indigo-600 font-black uppercase text-xs tracking-widest font-sans font-bold font-sans font-bold"><IconComp /><h3>{title}</h3></div>
-                        <div className="flex-1 overflow-y-auto max-h-[300px] scrollbar-hide">
-                            <DraggableList items={data} onSorted={async (list) => { const b = db.batch(); list.forEach((it, i) => b.update(getColl(coll).doc(it.id), { order: i })); await b.commit(); }} renderItem={(it) => (
-                                <div key={it.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border group hover:border-indigo-100 hover:bg-white transition-all mb-2 font-sans font-bold">
-                                    <div className="flex items-center gap-2 font-sans font-bold"><div className="drag-handle text-slate-300 transition-colors hover:text-indigo-400 p-1 font-sans font-bold"><Icons.Grip /></div><span className="text-sm">{it.name} {isDiscount && (it.type === 'percent' ? `(${it.value}%)` : `(-$${it.value})`)}</span></div>
-                                    <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all font-sans font-bold">
-                                        <button onClick={() => setEditModal({ open: true, coll, item: it })} className="p-1.5 text-indigo-400 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-indigo-100 font-sans font-bold"><Icons.Edit /></button>
-                                        <button onClick={() => setConfirmState({ title: "移除確認", message: "確定刪除嗎？", action: () => getColl(coll).doc(it.id).delete() })} className="p-1.5 text-rose-300 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-rose-100 font-sans font-bold"><Icons.Trash /></button>
-                                    </div>
-                                </div>
-                            )} />
-                        </div>
-                        <div className="flex flex-col gap-2 pt-2 border-t border-slate-50 font-sans font-bold mt-auto font-sans font-bold">
-                            <div className="flex gap-2 font-sans font-bold"><input className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner font-sans font-bold" placeholder="名稱..." value={val} onChange={e => setVal(e.target.value)} />{isDiscount && (<div className="relative"><select className="appearance-none p-3 pr-8 rounded-xl border bg-slate-50 text-xs font-bold font-sans font-bold h-full" value={type} onChange={e => setType(e.target.value)}><option value="amount">金額</option><option value="percent">%</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500"><svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg></div></div>)}</div>
-                            <div className="flex gap-2 font-sans font-bold"><input type="number" inputmode="numeric" className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner" value={num} onChange={e => setNum(parseInt(e.target.value) || 0)} /><button onClick={add} className="bg-indigo-600 text-white px-4 rounded-xl shadow-md font-sans active:scale-90 transition-transform font-sans font-bold"><Icons.Plus /></button></div>
-                        </div>
-                    </div>
-                );
-            };
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">數量調整</label>
+<div className="space-y-2 mt-2 font-sans font-bold">
+{editOrder.items.map((it, idx) => (
+<div key={idx} className="flex justify-between items-center bg-slate-50 p-3 rounded-xl font-sans"><span className="text-xs">{it.name}</span><input type="number" inputmode="numeric" className="w-20 p-2 rounded-lg border text-center font-black" value={it.qty} onChange={e => {
+const newItems = [...editOrder.items]; newItems[idx].qty = Math.max(1, parseInt(e.target.value) || 1); setEditOrder({...editOrder, items: newItems});
+}} /></div>
+))}
+</div>
+</div>
+{editOrder.type === 'SALE' && (
+<>
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans">折扣多選</label>
+<div className="flex flex-wrap gap-2 mt-2 font-sans">
+{discounts.map(d => {
+const isActive = (editOrder.discountIds || []).includes(d.id);
+return (<button key={d.id} onClick={() => {
+const current = editOrder.discountIds || [];
+const next = isActive ? current.filter(id => id !== d.id) : [...current, d.id];
+setEditOrder({...editOrder, discountIds: next});
+}} className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all ${isActive ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400 border-slate-200'}`}>{d.name}</button>);
+})}
+</div>
+</div>
+<div className="p-4 bg-indigo-50 rounded-2xl text-center"><p className="text-[10px] text-slate-400 font-black">更新後預估總額</p><span className="text-2xl font-black text-indigo-700">${calcEditFinal(editOrder)}</span></div>
+</>
+)}
+<div><label className="text-[10px] uppercase font-black text-slate-400 tracking-widest font-sans font-bold">備註修改</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 font-bold font-sans font-bold" value={editOrder.notes || ''} onChange={e => setEditOrder({...editOrder, notes: e.target.value})} /></div>
+<button onClick={handleSaveEdit} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-lg font-sans">確認修改並同步雲端數據</button>
+</div>
+</Modal>
+)}
+{confirmDelete && (<ConfirmModal title="徹底刪除紀錄" message="確定要永久移除這筆報表嗎？" onConfirm={handleDelete} onCancel={() => setConfirmDelete(null)} />)}
+</div>
+);
+};
 
-            return (
-                <div className="p-4 lg:p-8 space-y-8 pb-20 scrollbar-hide overflow-y-auto h-full font-sans font-bold">
-                    <div className="flex justify-between items-center font-sans font-bold"><h2 className="text-2xl font-black text-slate-800">全系統管理</h2><div className="flex gap-2"><button onClick={() => setBundleModal({ open: true, item: null })} className="bg-emerald-600 text-white px-6 py-4 rounded-[2rem] font-black flex items-center gap-2 shadow-xl hover:bg-emerald-700 transition-all scale-105 active:scale-95 text-xs"><Icons.Package />套組</button><button onClick={() => setProductModal({ open: true, item: null })} className="bg-indigo-600 text-white px-6 py-4 rounded-[2rem] font-black flex items-center gap-2 shadow-xl hover:bg-indigo-700 transition-all scale-105 active:scale-95 text-xs"><Icons.Plus />新增單品</button></div></div>
-                    <div className="bg-white rounded-[2rem] border shadow-sm overflow-hidden font-sans font-bold">
-                        <table className="w-full text-left border-collapse font-sans font-bold">
-                            <thead className="bg-slate-50/50 text-[10px] text-slate-400 font-black uppercase tracking-widest border-b font-sans font-bold"><tr><th className="px-6 py-5 w-16 text-center font-sans">排序</th><th className="px-6 py-5 font-sans font-bold">名稱</th><th className="px-6 py-5 font-sans font-bold">條碼</th><th className="px-6 py-5 font-sans font-bold text-right">操作</th></tr></thead>
-                            <DraggableList component="tbody" items={products} onSorted={async (list) => { const b = db.batch(); list.forEach((p, i) => b.update(getColl('products').doc(p.id), { order: i })); await b.commit(); }} renderItem={(p) => (
-                                <tr key={p.id} className="hover:bg-slate-50 group border-b transition-colors font-sans font-bold">
-                                    <td className="px-6 py-5 text-center font-sans font-bold"><div className="drag-handle text-slate-300 hover:text-indigo-400 p-2 inline-block font-sans font-bold"><Icons.Grip /></div></td>
-                                    <td className="px-6 py-5 font-black text-slate-700 font-sans font-bold">{p.name}</td>
-                                    <td className="px-6 py-5 font-mono text-xs font-black text-slate-400 uppercase tracking-widest font-sans font-bold">{p.barcode || '-'}</td>
-                                    <td className="px-6 py-5 text-right font-sans font-bold"><div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all font-sans font-bold"><button onClick={() => setProductModal({ open: true, item: p })} className="p-2 text-indigo-400 hover:bg-white rounded-xl shadow-sm border font-sans font-bold"><Icons.Edit /></button><button onClick={() => { getColl('products').doc(p.id).delete(); getColl('inventory').doc(p.id).delete(); }} className="p-2 text-rose-300 hover:bg-white hover:text-rose-500 rounded-xl shadow-sm border font-sans font-bold"><Icons.Trash /></button></div></td>
-                                </tr>
-                            )} />
-                        </table>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 font-sans font-bold">
-                        <SettingBlock title="服務人員列表" data={staffs} coll="settings_staff" icon="users" />
-                        <SettingBlock title="支付方式管理" data={payments} coll="settings_payments" icon="credit-card" />
-                        <SettingBlock title="折扣方案管理" data={discounts} coll="settings_discounts" icon="percent" />
-                        <SettingBlock title="標籤分類標誌" data={tags} coll="settings_tags" icon="tag" />
-                    </div>
-                    {productModal.open && <ProductEditor tags={tags} productToEdit={productModal.item} onClose={() => setProductModal({ open: false, item: null })} />}
-                    {bundleModal.open && <BundleEditor products={products} onClose={() => setBundleModal({ open: false, item: null })} bundles={bundles} />}
-                    {editModal.open && (
-                        <Modal title="快速編輯" onClose={() => setEditModal({ open: false, coll: '', item: null })}>
-                            <div className="space-y-4 font-sans font-black font-bold">
-                                <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">顯示名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none shadow-inner font-sans font-black font-bold" value={editModal.item.name} onChange={e => setEditModal({...editModal, item: {...editModal.item, name: e.target.value}})} /></div>
-                                {editModal.coll === 'settings_discounts' && (
-                                    <div className="grid grid-cols-2 gap-4 font-sans font-bold">
-                                        <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">類型</label><select className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-sans font-black font-bold" value={editModal.item.type} onChange={e => setEditModal({...editModal, item: {...editModal.item, type: e.target.value}})}><option value="amount">金額</option><option value="percent">%</option></select></div>
-                                        <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">數值</label><input type="number" inputmode="numeric" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-sans font-black font-bold" value={editModal.item.value} onChange={e => setEditModal({...editModal, item: {...editModal.item, value: parseInt(e.target.value) || 0}})} /></div>
-                                    </div>
-                                )}
-                                <button onClick={async () => { await getColl(editModal.coll).doc(editModal.item.id).update(editModal.item); setEditModal({ open: false, coll: '', item: null }); }} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-700 font-sans tracking-widest uppercase font-bold font-sans font-bold">儲存</button>
-                            </div>
-                        </Modal>
-                    )}
-                </div>
-            );
-        };
+const SettingsView = ({ staffs, discounts, payments, tags, products, setConfirmState, bundles }) => {
+const [productModal, setProductModal] = useState({ open: false, item: null });
+const [editModal, setEditModal] = useState({ open: false, coll: '', item: null });
+const [bundleModal, setBundleModal] = useState({ open: false, item: null });
 
-        const App = () => {
-            const [view, setView] = useState('sales');
-            const [user, setUser] = useState(null);
-            const [loading, setLoading] = useState(true);
-            const [authError, setAuthError] = useState(null); // 新增：驗證錯誤狀態
-            const [products, setProducts] = useState([]);
-            const [inventory, setInventory] = useState({});
-            const [staffs, setStaffs] = useState([]);
-            const [discounts, setDiscounts] = useState([]);
-            const [payments, setPayments] = useState([]);
-            const [tags, setTags] = useState([]);
-            const [bundles, setBundles] = useState([]);
-            const [cart, setCart] = useState([]);
-            const [confirmState, setConfirmState] = useState(null);
+const SettingBlock = ({ title, data, coll, icon }) => {
+const [val, setVal] = useState(''); const [num, setNum] = useState(0); const [type, setType] = useState('amount'); const isDiscount = coll === 'settings_discounts';
+const add = async () => { if(!val) return; await getColl(coll).add({ name: val, value: isDiscount ? num : null, type: isDiscount ? type : null, order: data.length }); setVal(''); setNum(0); };
+const IconComp = icon === 'users' ? Icons.Users : icon === 'credit-card' ? Icons.CreditCard : icon === 'percent' ? Icons.Percent : Icons.Tag;
 
-            useEffect(() => {
-                const initAuth = async () => { 
-                    try { 
-                        await auth.signInAnonymously(); 
-                    } catch (err) {
-                        console.error("Firebase Auth 錯誤:", err);
-                        // 攔截並記錄 Firebase 網域限制錯誤
-                        setAuthError(err.message || "發生未知驗證錯誤");
-                    } finally { 
-                        setLoading(false); 
-                    } 
-                };
-                initAuth();
-                const unsubAuth = auth.onAuthStateChanged(u => {
-                    setUser(u);
-                    if (u) setAuthError(null);
-                });
-                return () => unsubAuth();
-            }, []);
+return (
+<div className="bg-white p-6 rounded-[2rem] border shadow-sm space-y-4 font-sans font-bold h-full flex flex-col font-sans font-bold">
+<div className="flex items-center gap-2 mb-2 text-indigo-600 font-black uppercase text-xs tracking-widest font-sans font-bold font-sans font-bold"><IconComp /><h3>{title}</h3></div>
+<div className="flex-1 overflow-y-auto max-h-[300px] scrollbar-hide">
+<DraggableList items={data} onSorted={async (list) => { const b = db.batch(); list.forEach((it, i) => b.update(getColl(coll).doc(it.id), { order: i })); await b.commit(); }} renderItem={(it) => (
+<div key={it.id} className="flex items-center justify-between bg-slate-50 p-3 rounded-2xl border group hover:border-indigo-100 hover:bg-white transition-all mb-2 font-sans font-bold">
+<div className="flex items-center gap-2 font-sans font-bold"><div className="drag-handle text-slate-300 transition-colors hover:text-indigo-400 p-1 font-sans font-bold"><Icons.Grip /></div><span className="text-sm">{it.name} {isDiscount && (it.type === 'percent' ? `(${it.value}%)` : `(-$${it.value})`)}</span></div>
+<div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-all font-sans font-bold">
+<button onClick={() => setEditModal({ open: true, coll, item: it })} className="p-1.5 text-indigo-400 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-indigo-100 font-sans font-bold"><Icons.Edit /></button>
+<button onClick={() => setConfirmState({ title: "移除確認", message: "確定刪除嗎？", action: () => getColl(coll).doc(it.id).delete() })} className="p-1.5 text-rose-300 hover:bg-white rounded-lg shadow-sm border border-transparent hover:border-rose-100 font-sans font-bold"><Icons.Trash /></button>
+</div>
+</div>
+)} />
+</div>
+<div className="flex flex-col gap-2 pt-2 border-t border-slate-50 font-sans font-bold mt-auto font-sans font-bold">
+<div className="flex gap-2 font-sans font-bold"><input className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner font-sans font-bold" placeholder="名稱..." value={val} onChange={e => setVal(e.target.value)} />{isDiscount && (<div className="relative"><select className="appearance-none p-3 pr-8 rounded-xl border bg-slate-50 text-xs font-bold font-sans font-bold h-full" value={type} onChange={e => setType(e.target.value)}><option value="amount">金額</option><option value="percent">%</option></select><div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-slate-500"><svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg></div></div>)}</div>
+<div className="flex gap-2 font-sans font-bold"><input type="number" inputmode="numeric" className="flex-1 p-3 rounded-xl border bg-slate-50 text-sm font-bold outline-none shadow-inner" value={num} onChange={e => setNum(parseInt(e.target.value) || 0)} /><button onClick={add} className="bg-indigo-600 text-white px-4 rounded-xl shadow-md font-sans active:scale-90 transition-transform font-sans font-bold"><Icons.Plus /></button></div>
+</div>
+</div>
+);
+};
 
-            useEffect(() => {
-                if (!user) return;
-                const unsubs = [
-                    getColl('products').onSnapshot(s => setProducts(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                    getColl('inventory').onSnapshot(s => { const i = {}; s.docs.forEach(d => i[d.id] = d.data().count||0); setInventory(i); }),
-                    getColl('settings_staff').onSnapshot(s => setStaffs(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                    getColl('settings_payments').onSnapshot(s => setPayments(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                    getColl('settings_tags').onSnapshot(s => setTags(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                    getColl('settings_discounts').onSnapshot(s => setDiscounts(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                    getColl('settings_bundles').onSnapshot(s => setBundles(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
-                ];
-                return () => unsubs.forEach(u => u());
-            }, [user]);
+return (
+<div className="p-4 lg:p-8 space-y-8 pb-20 scrollbar-hide overflow-y-auto h-full font-sans font-bold">
+<div className="flex justify-between items-center font-sans font-bold"><h2 className="text-2xl font-black text-slate-800">全系統管理</h2><div className="flex gap-2"><button onClick={() => setBundleModal({ open: true, item: null })} className="bg-emerald-600 text-white px-6 py-4 rounded-[2rem] font-black flex items-center gap-2 shadow-xl hover:bg-emerald-700 transition-all scale-105 active:scale-95 text-xs"><Icons.Package />套組</button><button onClick={() => setProductModal({ open: true, item: null })} className="bg-indigo-600 text-white px-6 py-4 rounded-[2rem] font-black flex items-center gap-2 shadow-xl hover:bg-indigo-700 transition-all scale-105 active:scale-95 text-xs"><Icons.Plus />新增單品</button></div></div>
+<div className="bg-white rounded-[2rem] border shadow-sm overflow-hidden font-sans font-bold">
+<table className="w-full text-left border-collapse font-sans font-bold">
+<thead className="bg-slate-50/50 text-[10px] text-slate-400 font-black uppercase tracking-widest border-b font-sans font-bold"><tr><th className="px-6 py-5 w-16 text-center font-sans">排序</th><th className="px-6 py-5 font-sans font-bold">名稱</th><th className="px-6 py-5 font-sans font-bold">條碼</th><th className="px-6 py-5 font-sans font-bold text-right">操作</th></tr></thead>
+<DraggableList component="tbody" items={products} onSorted={async (list) => { const b = db.batch(); list.forEach((p, i) => b.update(getColl('products').doc(p.id), { order: i })); await b.commit(); }} renderItem={(p) => (
+<tr key={p.id} className="hover:bg-slate-50 group border-b transition-colors font-sans font-bold">
+<td className="px-6 py-5 text-center font-sans font-bold"><div className="drag-handle text-slate-300 hover:text-indigo-400 p-2 inline-block font-sans font-bold"><Icons.Grip /></div></td>
+<td className="px-6 py-5 font-black text-slate-700 font-sans font-bold">{p.name}</td>
+<td className="px-6 py-5 font-mono text-xs font-black text-slate-400 uppercase tracking-widest font-sans font-bold">{p.barcode || '-'}</td>
+<td className="px-6 py-5 text-right font-sans font-bold"><div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-all font-sans font-bold"><button onClick={() => setProductModal({ open: true, item: p })} className="p-2 text-indigo-400 hover:bg-white rounded-xl shadow-sm border font-sans font-bold"><Icons.Edit /></button><button onClick={() => { getColl('products').doc(p.id).delete(); getColl('inventory').doc(p.id).delete(); }} className="p-2 text-rose-300 hover:bg-white hover:text-rose-500 rounded-xl shadow-sm border font-sans font-bold"><Icons.Trash /></button></div></td>
+</tr>
+)} />
+</table>
+</div>
+<div className="grid grid-cols-1 md:grid-cols-2 gap-6 pb-20 font-sans font-bold">
+<SettingBlock title="服務人員列表" data={staffs} coll="settings_staff" icon="users" />
+<SettingBlock title="支付方式管理" data={payments} coll="settings_payments" icon="credit-card" />
+<SettingBlock title="折扣方案管理" data={discounts} coll="settings_discounts" icon="percent" />
+<SettingBlock title="標籤分類標誌" data={tags} coll="settings_tags" icon="tag" />
+</div>
+{productModal.open && <ProductEditor tags={tags} productToEdit={productModal.item} onClose={() => setProductModal({ open: false, item: null })} />}
+{bundleModal.open && <BundleEditor products={products} onClose={() => setBundleModal({ open: false, item: null })} bundles={bundles} />}
+{editModal.open && (
+<Modal title="快速編輯" onClose={() => setEditModal({ open: false, coll: '', item: null })}>
+<div className="space-y-4 font-sans font-black font-bold">
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">顯示名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none shadow-inner font-sans font-black font-bold" value={editModal.item.name} onChange={e => setEditModal({...editModal, item: {...editModal.item, name: e.target.value}})} /></div>
+{editModal.coll === 'settings_discounts' && (
+<div className="grid grid-cols-2 gap-4 font-sans font-bold">
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">類型</label><select className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-sans font-black font-bold" value={editModal.item.type} onChange={e => setEditModal({...editModal, item: {...editModal.item, type: e.target.value}})}><option value="amount">金額</option><option value="percent">%</option></select></div>
+<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">數值</label><input type="number" inputmode="numeric" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-sans font-black font-bold" value={editModal.item.value} onChange={e => setEditModal({...editModal, item: {...editModal.item, value: parseInt(e.target.value) || 0}})} /></div>
+</div>
+)}
+<button onClick={async () => { await getColl(editModal.coll).doc(editModal.item.id).update(editModal.item); setEditModal({ open: false, coll: '', item: null }); }} className="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black shadow-xl hover:bg-indigo-700 font-sans tracking-widest uppercase font-bold font-sans font-bold">儲存</button>
+</div>
+</Modal>
+)}
+</div>
+);
+};
 
-            if (loading) return (<div className="fixed inset-0 flex items-center justify-center bg-white z-50 text-center animate-pulse"><div className="space-y-6"><div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto font-sans font-bold"></div><p className="text-slate-400 font-black tracking-widest uppercase text-[10px]">加密安全同步中...</p></div></div>);
+const App = () => {
+const [view, setView] = useState('sales');
+const [user, setUser] = useState(null);
+const [loading, setLoading] = useState(true);
+const [products, setProducts] = useState([]);
+const [inventory, setInventory] = useState({});
+const [staffs, setStaffs] = useState([]);
+const [discounts, setDiscounts] = useState([]);
+const [payments, setPayments] = useState([]);
+const [tags, setTags] = useState([]);
+const [bundles, setBundles] = useState([]);
+const [cart, setCart] = useState([]);
+const [confirmState, setConfirmState] = useState(null);
 
-            // 新增：如果發生 API Domain 攔截錯誤，顯示清晰的指引介面
-            if (authError) {
-                return (
-                    <div className="fixed inset-0 flex items-center justify-center bg-slate-50 z-50 p-4 font-sans">
-                        <div className="bg-white p-8 rounded-[2rem] shadow-2xl max-w-lg w-full space-y-6 border border-slate-100">
-                            <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-full flex items-center justify-center mx-auto"><Icons.Alert /></div>
-                            <div className="text-center space-y-2">
-                                <h2 className="text-2xl font-black text-slate-800">API 網域遭攔截 (403)</h2>
-                                <p className="text-sm text-slate-500 font-bold">因為目前的預覽網域不在您的 Firebase 允許清單內，無法進行登入與資料讀取。</p>
-                            </div>
-                            <div className="bg-slate-50 p-4 rounded-xl text-xs text-rose-600 font-mono break-all border border-rose-100">
-                                {authError}
-                            </div>
-                            <div className="text-sm text-slate-700 font-bold space-y-3 bg-indigo-50/50 p-6 rounded-2xl border border-indigo-100">
-                                <p className="font-black text-indigo-700 flex items-center gap-2">💡 解法說明：</p>
-                                <ol className="list-decimal pl-5 space-y-2">
-                                    <li>前往 <a href="https://console.cloud.google.com/apis/credentials" target="_blank" className="text-indigo-600 hover:underline">Google Cloud Console - 憑證設定</a></li>
-                                    <li>選擇專案 <strong>my-pos-be7b2</strong> 的 API 金鑰。</li>
-                                    <li>在「HTTP 參照網址 (HTTP referrers)」清單中，新增此預覽網域 (注意 <strong>/*</strong> 是必填的，代表允許所有子路徑)：<br/>
-                                        <code className="bg-white px-2 py-1 rounded text-indigo-600 mt-1 inline-block border shadow-sm font-black text-lg break-all">*.scf.usercontent.goog/*</code>
-                                    </li>
-                                    <li>儲存後等待約 5 分鐘，然後點擊下方按鈕重試。</li>
-                                </ol>
-                            </div>
-                            <div className="mt-6 flex justify-center">
-                                <button onClick={() => window.location.reload()} className="bg-indigo-600 text-white px-6 py-3 rounded-xl font-black shadow-lg active:scale-95 transition-transform">我設定好了，重新載入</button>
-                            </div>
-                            <p className="text-center text-xs text-slate-400 font-bold">如果您是直接部署到 GitHub Pages，而 GitHub Pages 的網域已有設定，那邊仍可正常運作不受影響。</p>
-                        </div>
-                    </div>
-                );
-            }
+useEffect(() => {
+const initAuth = async () => { try { await auth.signInAnonymously(); } finally { setLoading(false); } };
+initAuth();
+const unsubAuth = auth.onAuthStateChanged(u => setUser(u));
+return () => unsubAuth();
+}, []);
 
-            return (
-                <div className="min-h-screen app-height flex flex-col md:flex-row bg-slate-50 text-slate-800 overflow-hidden font-sans font-bold">
-                    <nav className="fixed bottom-0 left-0 right-0 md:relative md:w-20 lg:w-64 bg-white border-t md:border-t-0 md:border-r z-40 flex md:flex-col items-center py-2 md:py-8 shadow-2xl md:shadow-none">
-                        <div className="hidden lg:block mb-10 px-6 w-full text-center font-black"><h1 className="text-2xl text-indigo-600 tracking-tighter leading-none mb-1">SILK POS</h1><p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Enterprise V2.5 Pro</p></div>
-                        <div className="flex flex-row md:flex-col w-full justify-around md:justify-start md:space-y-4 px-2 font-bold">
-                            {[{id:'sales',icon:<Icons.Cart/>,label:'銷售'},{id:'inventory',icon:<Icons.Package/>,label:'庫存'},{id:'history',icon:<Icons.History/>,label:'報表'},{id:'settings',icon:<Icons.Settings/>,label:'設定'}].map(item => (
-                                <button key={item.id} onClick={() => setView(item.id)} className={`flex flex-col lg:flex-row items-center lg:space-x-4 p-3 lg:px-6 lg:w-[90%] mx-auto rounded-[1.5rem] transition-all duration-300 ${view === item.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-105 font-black' : 'text-slate-400 hover:bg-slate-50'} font-sans font-bold`} >
-                                    <span className="w-6 h-6">{item.icon}</span><span className="text-[10px] lg:text-base font-black mt-1 lg:mt-0 tracking-tighter uppercase font-sans font-bold">{item.label}</span>
-                                </button>
-                            ))}
-                        </div>
-                    </nav>
-                    <main className="flex-1 pb-20 md:pb-0 overflow-hidden h-full">
-                        {view === 'sales' && <SalesView products={products} inventory={inventory} cart={cart} setCart={setCart} staffs={staffs} discounts={discounts} payments={payments} tags={tags} bundles={bundles} />}
-                        {view === 'inventory' && <InventoryView products={products} inventory={inventory} tags={tags} staffs={staffs} payments={payments} />}
-                        {view === 'history' && <HistoryView staffs={staffs} payments={payments} discounts={discounts} />}
-                        {view === 'settings' && <SettingsView staffs={staffs} discounts={discounts} payments={payments} tags={tags} products={products} setConfirmState={setConfirmState} bundles={bundles} />}
-                    </main>
-                    {confirmState && (<ConfirmModal title={confirmState.title} message={confirmState.message} onConfirm={() => { confirmState.action(); setConfirmState(null); }} onCancel={() => setConfirmState(null)} />)}
-                </div>
-            );
-        };
+useEffect(() => {
+if (!user) return;
+const unsubs = [
+getColl('products').onSnapshot(s => setProducts(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+getColl('inventory').onSnapshot(s => { const i = {}; s.docs.forEach(d => i[d.id] = d.data().count||0); setInventory(i); }),
+getColl('settings_staff').onSnapshot(s => setStaffs(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+getColl('settings_payments').onSnapshot(s => setPayments(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+getColl('settings_tags').onSnapshot(s => setTags(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+getColl('settings_discounts').onSnapshot(s => setDiscounts(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+getColl('settings_bundles').onSnapshot(s => setBundles(s.docs.map(d => ({id: d.id, ...d.data()})).sort((a,b) => (a.order||0)-(b.order||0)))),
+];
+return () => unsubs.forEach(u => u());
+}, [user]);
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
+if (loading) return (<div className="fixed inset-0 flex items-center justify-center bg-white z-50 text-center animate-pulse"><div className="space-y-6"><div className="animate-spin rounded-full h-16 w-16 border-b-4 border-indigo-600 mx-auto font-sans font-bold"></div><p className="text-slate-400 font-black tracking-widest uppercase text-[10px]">加密安全同步中...</p></div></div>);
+
+return (
+<div className="min-h-screen app-height flex flex-col md:flex-row bg-slate-50 text-slate-800 overflow-hidden font-sans font-bold">
+<nav className="fixed bottom-0 left-0 right-0 md:relative md:w-20 lg:w-64 bg-white border-t md:border-t-0 md:border-r z-40 flex md:flex-col items-center py-2 md:py-8 shadow-2xl md:shadow-none">
+<div className="hidden lg:block mb-10 px-6 w-full text-center font-black"><h1 className="text-2xl text-indigo-600 tracking-tighter leading-none mb-1">SILK POS</h1><p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Enterprise V2.5 Pro</p></div>
+<div className="flex flex-row md:flex-col w-full justify-around md:justify-start md:space-y-4 px-2 font-bold">
+{[{id:'sales',icon:<Icons.Cart/>,label:'銷售'},{id:'inventory',icon:<Icons.Package/>,label:'庫存'},{id:'history',icon:<Icons.History/>,label:'報表'},{id:'settings',icon:<Icons.Settings/>,label:'設定'}].map(item => (
+<button key={item.id} onClick={() => setView(item.id)} className={`flex flex-col lg:flex-row items-center lg:space-x-4 p-3 lg:px-6 lg:w-[90%] mx-auto rounded-[1.5rem] transition-all duration-300 ${view === item.id ? 'bg-indigo-600 text-white shadow-xl shadow-indigo-100 scale-105 font-black' : 'text-slate-400 hover:bg-slate-50'} font-sans font-bold`} >
+<span className="w-6 h-6">{item.icon}</span><span className="text-[10px] lg:text-base font-black mt-1 lg:mt-0 tracking-tighter uppercase font-sans font-bold">{item.label}</span>
+</button>
+))}
+</div>
+</nav>
+<main className="flex-1 pb-20 md:pb-0 overflow-hidden h-full">
+{view === 'sales' && <SalesView products={products} inventory={inventory} cart={cart} setCart={setCart} staffs={staffs} discounts={discounts} payments={payments} tags={tags} bundles={bundles} />}
+{view === 'inventory' && <InventoryView products={products} inventory={inventory} tags={tags} staffs={staffs} payments={payments} />}
+{view === 'history' && <HistoryView staffs={staffs} payments={payments} discounts={discounts} />}
+{view === 'settings' && <SettingsView staffs={staffs} discounts={discounts} payments={payments} tags={tags} products={products} setConfirmState={setConfirmState} bundles={bundles} />}
+</main>
+{confirmState && (<ConfirmModal title={confirmState.title} message={confirmState.message} onConfirm={() => { confirmState.action(); setConfirmState(null); }} onCancel={() => setConfirmState(null)} />)}
+</div>
+);
+};
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+</script>
 </body>
 </html>
