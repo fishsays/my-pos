@@ -85,6 +85,29 @@ const localDate = new Date(date.getTime() - offset);
 return localDate.toISOString().split('T')[0];
 };
 
+// --- Image Compression Utility ---
+const compressImage = (file, maxWidth = 400, quality = 0.7) => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let w = img.width, h = img.height;
+        if (w > maxWidth) { h = Math.round(h * maxWidth / w); w = maxWidth; }
+        canvas.width = w; canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        resolve(canvas.toDataURL('image/jpeg', quality));
+      };
+      img.onerror = reject;
+      img.src = e.target.result;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+};
+
 // --- 1. 內建圖示庫 (Icon System) ---
 const Icon = ({ path, className = "w-6 h-6" }) => (
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
@@ -128,6 +151,9 @@ const [error, setError] = useState(false);
 const optimizedSrc = useMemo(() => {
 if (!src) return '';
                 let processedSrc = src.trim();
+
+                // Data URL (本機上傳圖片) 直接回傳，不做任何處理
+                if (processedSrc.startsWith('data:')) return processedSrc;
 
                 // 自動修正誤貼成 blob (網頁版) 的 Github 網址
                 if (processedSrc.includes('github.com') && processedSrc.includes('/blob/')) {
@@ -316,6 +342,19 @@ const [imageUrl, setImageUrl] = useState(productToEdit?.imageUrl || '');
 const [options, setOptions] = useState(productToEdit?.options || [{ label: '原價', price: 0 }]);
 const [selTags, setSelTags] = useState(productToEdit?.tags || []);
 const [isSaving, setIsSaving] = useState(false);
+const [imageMode, setImageMode] = useState('upload');
+const [isCompressing, setIsCompressing] = useState(false);
+const fileInputRef = useRef(null);
+const handleImageUpload = async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  setIsCompressing(true);
+  try {
+    const dataUrl = await compressImage(file, 400, 0.7);
+    setImageUrl(dataUrl);
+  } catch (err) { console.error('圖片壓縮失敗:', err); }
+  finally { setIsCompressing(false); }
+};
 const save = async () => { if (!name) return; setIsSaving(true); const data = { name, barcode, imageUrl, options, tags: selTags, updatedAt: firebase.firestore.FieldValue.serverTimestamp() }; if (productToEdit) { await getColl('products').doc(productToEdit.id).update(data); } else { const ref = getColl('products').doc(); data.order = 999; await ref.set(data); await getColl('inventory').doc(ref.id).set({ count: 0 }); } onClose(); };
 return (
 <Modal title={productToEdit ? "修改資料" : "建立新品"} onClose={onClose} wide={true}>
@@ -323,7 +362,29 @@ return (
 <div className="space-y-4 font-bold">
 <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">名稱</label><input type="text" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-bold" value={name} onChange={e => setName(e.target.value)} /></div>
 <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">條碼 (預設英文)</label><input type="text" inputmode="url" autoComplete="off" autoCorrect="off" spellCheck="false" className="w-full p-4 rounded-xl border bg-slate-50 outline-none font-mono" value={barcode} onChange={e => setBarcode(e.target.value)} /></div>
-<div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-indigo-600 font-black">圖片連結</label><input type="text" className="w-full p-4 rounded-xl border bg-indigo-50/30 outline-none font-black border-indigo-100 font-sans font-bold" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} /></div>
+<div>
+  <div className="flex items-center justify-between mb-1">
+    <label className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">商品圖片</label>
+    <div className="flex gap-1">
+      <button onClick={() => setImageMode('upload')} className={`px-2 py-0.5 rounded-lg text-[9px] font-black border transition-all ${imageMode === 'upload' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>上傳檔案</button>
+      <button onClick={() => setImageMode('url')} className={`px-2 py-0.5 rounded-lg text-[9px] font-black border transition-all ${imageMode === 'url' ? 'bg-indigo-600 text-white border-indigo-600' : 'bg-white text-slate-400 border-slate-200'}`}>網址連結</button>
+    </div>
+  </div>
+  {imageMode === 'upload' ? (
+    <div className="space-y-2">
+      <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+      <button onClick={() => fileInputRef.current?.click()} disabled={isCompressing} className="w-full p-4 rounded-xl border-2 border-dashed border-indigo-200 bg-indigo-50/30 hover:bg-indigo-50 transition-all text-sm font-bold text-indigo-500 flex items-center justify-center gap-2">
+        {isCompressing ? '壓縮處理中...' : (imageUrl ? '重新選擇圖片' : '點擊選擇圖片檔案')}
+      </button>
+      {imageUrl && <div className="relative w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-slate-100"><img src={imageUrl} className="w-full h-full object-cover" /><button onClick={() => setImageUrl('')} className="absolute top-2 right-2 bg-rose-500 text-white p-1.5 rounded-full shadow-lg hover:bg-rose-600 transition-colors"><Icons.X /></button></div>}
+    </div>
+  ) : (
+    <div className="space-y-2">
+      <input type="text" className="w-full p-4 rounded-xl border bg-indigo-50/30 outline-none font-bold border-indigo-100" placeholder="https://..." value={imageUrl} onChange={e => setImageUrl(e.target.value)} />
+      {imageUrl && <div className="w-full aspect-square rounded-xl overflow-hidden border shadow-inner bg-slate-100"><img src={imageUrl} className="w-full h-full object-cover" onError={e => e.target.style.display='none'} /></div>}
+    </div>
+  )}
+</div>
 <div><label className="text-[10px] font-black text-slate-400 uppercase tracking-widest font-sans font-bold">標籤</label><div className="flex flex-wrap gap-2 mt-2 font-sans font-bold">{tags.map(t => <button key={t.id} onClick={() => selTags.includes(t.name) ? setSelTags(selTags.filter(x => x !== t.name)) : setSelTags([...selTags, t.name])} className={`px-3 py-1.5 rounded-xl text-[10px] border transition-all font-black uppercase font-sans font-bold ${selTags.includes(t.name) ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400'}`}>{t.name}</button>)}</div></div>
 </div>
 <div className="space-y-4 font-bold">
